@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Login | MedLab{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .auth-page {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-wrapper {
+        max-width: 950px;
+        width: 100%;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+    }
+
+    .login-left {
+        background: linear-gradient(
+            145deg,
+            #0f766e,
+            #115e59
+        );
+        color: white;
+        padding: 55px;
+        min-height: 560px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-left h1 {
+        font-size: 38px;
+        font-weight: 800;
+        margin-bottom: 18px;
+    }
+
+    .login-left p {
+        color: #ccfbf1;
+        line-height: 1.7;
+    }
+
+    .feature {
+        display: flex;
+        align-items: center;
+        margin-top: 22px;
+    }
+
+    .feature-icon {
+        width: 42px;
+        height: 42px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+
+    .login-right {
+        padding: 55px;
+    }
+
+    .login-title {
+        font-weight: 800;
+        font-size: 30px;
+    }
+
+    .login-subtitle {
+        color: #64748b;
+        margin-bottom: 30px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="auth-page">
+
+    <div class="login-wrapper">
+
+        <div class="login-card">
+
+            <div class="row g-0">
+
+                <!-- LEFT -->
+
+                <div class="col-lg-6">
+
+                    <div class="login-left">
+
+                        <div class="mb-4">
+
+                            <div class="feature-icon mb-3">
+                                <i class="bi bi-heart-pulse-fill fs-4"></i>
+                            </div>
+
+                            <h1>
+                                Welcome to MedLab
+                            </h1>
+
+                            <p>
+                                Manage laboratory tests, bookings,
+                                reports and patient information
+                                from one secure platform.
+                            </p>
+
+                        </div>
+
+
+                        <div class="feature">
+
+                            <div class="feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+
+                            <div>
+                                <strong>Secure Access</strong>
+                                <br>
+                                <small>
+                                    Your information stays protected.
+                                </small>
+                            </div>
+
+                        </div>
+
+
+                        <div class="feature">
+
+                            <div class="feature-icon">
+                                <i class="bi bi-file-earmark-medical"></i>
+                            </div>
+
+                            <div>
+                                <strong>Digital Reports</strong>
+                                <br>
+                                <small>
+                                    Access laboratory reports easily.
+                                </small>
+                            </div>
+
+                        </div>
+
+
+                        <div class="feature">
+
+                            <div class="feature-icon">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+
+                            <div>
+                                <strong>Easy Booking</strong>
+                                <br>
+                                <small>
+                                    Book laboratory tests quickly.
+                                </small>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT -->
+
+                <div class="col-lg-6">
+
+                    <div class="login-right">
+
+                        <h2 class="login-title">
+                            Sign in
+                        </h2>
+
+                        <p class="login-subtitle">
+                            Enter your account details to continue.
+                        </p>
+
+
+                        <form method="POST">
+
+                            {{ form.hidden_tag() }}
+
+
+                            <div class="mb-4">
+
+                                {{ form.email.label(
+                                    class="form-label"
+                                ) }}
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+
+                                    {{ form.email(
+                                        class="form-control",
+                                        placeholder="Enter your email"
+                                    ) }}
+
+                                </div>
+
+                                {% for error in form.email.errors %}
+
+                                    <small class="text-danger">
+                                        {{ error }}
+                                    </small>
+
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="mb-4">
+
+                                {{ form.password.label(
+                                    class="form-label"
+                                ) }}
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-lock"></i>
+                                    </span>
+
+                                    {{ form.password(
+                                        class="form-control",
+                                        placeholder="Enter your password"
+                                    ) }}
+
+                                </div>
+
+                            </div>
+
+
+                            {{ form.submit(
+                                class="btn btn-primary w-100 py-3 fw-semibold"
+                            ) }}
+
+
+                        </form>
+
+
+                        <div class="text-center mt-4">
+
+                            <span class="text-muted">
+                                Don't have an account?
+                            </span>
+
+                            <a
+                                href="{{ url_for('auth.register') }}"
+                                class="text-decoration-none fw-semibold"
+                            >
+                                Create account
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

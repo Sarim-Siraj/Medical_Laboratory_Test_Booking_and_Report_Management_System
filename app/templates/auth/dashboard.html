@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | MedLab{% endblock %}
+
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h1 class="fw-bold">
+        Good day, {{ current_user.name }} 👋
+    </h1>
+
+    <p class="text-muted">
+        Welcome back to your MedLab dashboard.
+    </p>
+
+</div>
+
+
+<!-- Stats -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+
+        <div class="modern-card p-4">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Account Status
+                    </p>
+
+                    <h4 class="fw-bold">
+                        Active
+                    </h4>
+
+                </div>
+
+                <div class="text-success fs-2">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="modern-card p-4">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Your Role
+                    </p>
+
+                    <h4 class="fw-bold">
+                        {{ current_user.role.name }}
+                    </h4>
+
+                </div>
+
+                <div class="text-primary fs-2">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="modern-card p-4">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+
+                    <p class="text-muted mb-1">
+                        Member Since
+                    </p>
+
+                    <h4 class="fw-bold">
+                        {{ current_user.created_at.strftime('%d %b %Y') }}
+                    </h4>
+
+                </div>
+
+                <div class="text-warning fs-2">
+                    <i class="bi bi-calendar-event-fill"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Quick Actions -->
+
+<div class="modern-card p-4">
+
+    <h4 class="fw-bold mb-4">
+        Quick Actions
+    </h4>
+
+
+    <div class="row g-3">
+
+        <div class="col-md-4">
+
+            <div class="border rounded-4 p-4 h-100">
+
+                <i class="bi bi-calendar-plus fs-2 text-primary"></i>
+
+                <h5 class="fw-bold mt-3">
+                    Book a Test
+                </h5>
+
+                <p class="text-muted">
+                    Schedule a laboratory test.
+                </p>
+
+                <button class="btn btn-primary">
+                    Coming Soon
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="border rounded-4 p-4 h-100">
+
+                <i class="bi bi-file-earmark-medical fs-2 text-success"></i>
+
+                <h5 class="fw-bold mt-3">
+                    My Reports
+                </h5>
+
+                <p class="text-muted">
+                    View your laboratory reports.
+                </p>
+
+                <button class="btn btn-outline-success">
+                    Coming Soon
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="border rounded-4 p-4 h-100">
+
+                <i class="bi bi-person-vcard fs-2 text-info"></i>
+
+                <h5 class="fw-bold mt-3">
+                    My Profile
+                </h5>
+
+                <p class="text-muted">
+                    View and manage your account.
+                </p>
+
+                <button class="btn btn-outline-info">
+                    Coming Soon
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Account Information -->
+
+<div class="modern-card p-4 mt-4">
+
+    <h4 class="fw-bold mb-4">
+        Account Information
+    </h4>
+
+
+    <div class="row">
+
+        <div class="col-md-4 mb-3">
+
+            <small class="text-muted">
+                Full Name
+            </small>
+
+            <div class="fw-semibold">
+                {{ current_user.name }}
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+
+            <small class="text-muted">
+                Email Address
+            </small>
+
+            <div class="fw-semibold">
+                {{ current_user.email }}
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+
+            <small class="text-muted">
+                Role
+            </small>
+
+            <div class="fw-semibold">
+                {{ current_user.role.name }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
