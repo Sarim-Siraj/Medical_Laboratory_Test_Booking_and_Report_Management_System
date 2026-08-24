@@ -22,7 +22,13 @@ def create_app():
 
     login_manager.login_view = "auth.login"
 
+    from app.models import user, role, patient, staff, test, booking
+
     from app.auth.routes import auth
     app.register_blueprint(auth)
+
+    from app.medlab.routes import book_test
+    from app.medlab import medlab
+    app.register_blueprint(medlab)
 
     return app

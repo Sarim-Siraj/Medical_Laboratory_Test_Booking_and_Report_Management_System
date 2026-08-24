@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">📋 Book a Lab Test</h4>
+        </div>
+
+        <div class="card-body">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Patient</label>
+
+                    {% if is_patient %}
+                        <input type="text" class="form-control" value="{{ form.patient_id.choices[0][1] }}" disabled>
+                        {{ form.patient_id(style="display:none;") }}
+                    {% else %}
+                        {{ form.patient_id(class="form-select") }}
+                    {% endif %}
+                </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Tests</label>
+                    {{ form.test_ids(class="form-select", size="6") }}
+                    <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple tests</small>
+                </div>
+
+                <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

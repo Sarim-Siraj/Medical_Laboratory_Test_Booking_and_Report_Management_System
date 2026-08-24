@@ -5,7 +5,14 @@
 
 {% block content %}
 
+<div>
+    <h1>Welcome, {{ current_user.name }}!</h1>
+    <p>Your dashboard section: {{ section }}</p>
+</div>
+
 <div class="mb-4">
+
+    
 
     <h1 class="fw-bold">
         Good day, {{ current_user.name }} 👋
@@ -129,20 +136,22 @@
                 <i class="bi bi-calendar-plus fs-2 text-primary"></i>
 
                 <h5 class="fw-bold mt-3">
-                    Book a Test
+                Book a Test
                 </h5>
 
                 <p class="text-muted">
-                    Schedule a laboratory test.
+                Schedule a laboratory test.
                 </p>
 
-                <button class="btn btn-primary">
-                    Coming Soon
-                </button>
+                <a href="{{ url_for('medlab.book_test') }}" class="btn btn-primary">
+                Book Now
+                </a>
 
             </div>
 
         </div>
+
+
 
 
         <div class="col-md-4">

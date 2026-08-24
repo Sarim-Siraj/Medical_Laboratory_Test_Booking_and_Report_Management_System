@@ -1,3 +1,4 @@
+from app.models.patient import Patient   # 👈 top pe import add karo
 from flask import (
     render_template,
     redirect,
@@ -32,7 +33,6 @@ def load_user(user_id):
         User,
         int(user_id)
     )
-
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
@@ -87,6 +87,14 @@ def register():
         )
 
         db.session.add(user)
+        db.session.flush()
+
+        patient_profile = Patient(
+            user_id=user.id,
+            full_name=form.name.data
+        )
+        db.session.add(patient_profile)
+
         db.session.commit()
 
         flash(
@@ -102,7 +110,6 @@ def register():
         "auth/register.html",
         form=form
     )
-
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -176,7 +183,11 @@ def logout():
 @auth.route("/dashboard")
 @login_required
 def dashboard():
+    role_name = current_user.role.name
 
-    return render_template(
-        "auth/dashboard.html"
-    )
+    if role_name == "Patient":
+        return render_template("auth/dashboard.html", section="patient")
+    elif role_name == "Administrator":
+        return render_template("auth/dashboard.html", section="admin")
+    else:
+        return render_template("auth/dashboard.html", section="staff")
