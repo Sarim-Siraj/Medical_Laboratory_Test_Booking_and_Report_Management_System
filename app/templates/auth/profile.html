@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | MedLab{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="fw-bold mb-4">👤 My Profile</h2>
+
+    <div class="modern-card p-4" style="max-width: 600px;">
+
+        {% if patient_profile %}
+        <div class="text-center mb-4">
+            <p class="text-muted mb-1">Patient ID</p>
+            <h3 class="fw-bold text-primary">{{ patient_profile.patient_code }}</h3>
+        </div>
+        <hr>
+        {% endif %}
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+                <small class="text-muted">Full Name</small>
+                <div class="fw-semibold">{{ current_user.name }}</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <small class="text-muted">Email Address</small>
+                <div class="fw-semibold">{{ current_user.email }}</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <small class="text-muted">Role</small>
+                <div class="fw-semibold">{{ current_user.role.name }}</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <small class="text-muted">Member Since</small>
+                <div class="fw-semibold">{{ current_user.created_at.strftime('%d %b %Y') }}</div>
+            </div>
+
+            {% if patient_profile %}
+            <div class="col-md-6 mb-3">
+                <small class="text-muted">Phone</small>
+                <div class="fw-semibold">{{ patient_profile.phone or "Not provided" }}</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <small class="text-muted">Address</small>
+                <div class="fw-semibold">{{ patient_profile.address or "Not provided" }}</div>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

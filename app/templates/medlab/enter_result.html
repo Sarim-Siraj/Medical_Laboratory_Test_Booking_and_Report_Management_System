@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h4 class="fw-bold mb-3">Enter Result — {{ sample.sample_code }}</h4>
+    <p class="text-muted">Test: {{ sample.booking_item.test.name }}</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if results %}
+    <table class="table table-sm table-bordered mb-4">
+        <thead><tr><th>Parameter</th><th>Value</th><th>Unit</th></tr></thead>
+        <tbody>
+            {% for r in results %}
+            <tr><td>{{ r.parameter }}</td><td>{{ r.value }}</td><td>{{ r.unit }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-4">
+                {{ form.parameter(class="form-control", placeholder="e.g. Hemoglobin") }}
+                {% for error in form.parameter.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="col-md-4">
+                {{ form.value(class="form-control", placeholder="e.g. 13.5") }}
+                {% for error in form.value.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+            <div class="col-md-4">
+                {{ form.unit(class="form-control", placeholder="e.g. g/dL") }}
+                {% for error in form.unit.errors %}
+                    <small class="text-danger">{{ error }}</small>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Result</button>
+    </form>
+
+    <a href="{{ url_for('medlab.collected_samples') }}" class="btn btn-outline-secondary mt-3">
+        ✅ Done — Back to Sample List
+    </a>
+
+</div>
+{% endblock %}

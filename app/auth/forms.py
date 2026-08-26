@@ -1,17 +1,8 @@
 from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
+from wtforms.validators import DataRequired, Optional, Regexp, Length
 
-from wtforms import (
-    StringField,
-    PasswordField,
-    SubmitField
-)
-
-from wtforms.validators import (
-    DataRequired,
-    Email,
-    EqualTo,
-    Length
-)
 
 
 class LoginForm(FlaskForm):
@@ -19,55 +10,67 @@ class LoginForm(FlaskForm):
     email = StringField(
         "Email",
         validators=[
-            DataRequired(),
-            Email()
+            DataRequired(message="Email is required."),
+            Email(message="Enter a valid email address.")
         ]
     )
 
     password = PasswordField(
         "Password",
         validators=[
-            DataRequired()
+            DataRequired(message="Password is required.")
         ]
     )
 
     submit = SubmitField("Login")
 
-
 class RegisterForm(FlaskForm):
 
     name = StringField(
-        "Name",
+        "Full Name",
         validators=[
-            DataRequired(),
-            Length(min=2, max=100)
+            DataRequired(message="Name is required."),
+            Length(min=3, max=100, message="Name must be between 3-100 characters.")
         ]
     )
 
     email = StringField(
         "Email",
         validators=[
-            DataRequired(),
-            Email()
+            DataRequired(message="Email is required."),
+            Email(message="Enter a valid email address.")
+        ]
+    )
+
+    phone = StringField(
+        "Phone Number",
+        validators=[
+            DataRequired(message="Phone number is required."),
+            Regexp(r'^\d{10,15}$', message="Phone must contain only digits (10-15 numbers).")
+        ]
+    )
+
+    address = StringField(
+        "Address",
+        validators=[
+            DataRequired(message="Address is required."),
+            Length(max=255, message="Address is too long.")
         ]
     )
 
     password = PasswordField(
         "Password",
         validators=[
-            DataRequired(),
-            Length(min=6)
+            DataRequired(message="Password is required."),
+            Length(min=6, message="Password must be at least 6 characters.")
         ]
     )
 
     confirm_password = PasswordField(
         "Confirm Password",
         validators=[
-            DataRequired(),
-            EqualTo(
-                "password",
-                message="Passwords must match."
-            )
+            DataRequired(message="Please confirm your password."),
+            EqualTo("password", message="Passwords must match.")
         ]
     )
 

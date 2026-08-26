@@ -11,19 +11,19 @@
         <div class="card-body">
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
             {% endwith %}
 
             <form method="POST">
                 {{ form.hidden_tag() }}
-
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Patient</label>
@@ -32,10 +32,17 @@
                         <input type="text" class="form-control" value="{{ form.patient_id.choices[0][1] }}" disabled>
                         {{ form.patient_id(style="display:none;") }}
                     {% else %}
-                        {{ form.patient_id(class="form-select") }}
+                        <input type="text" list="patient-list" class="form-control" id="patient-search"
+                               placeholder="Type patient name or ID to search..." autocomplete="off">
+                        <datalist id="patient-list">
+                            {% for pid, label in form.patient_id.choices %}
+                                <option value="{{ label }}" data-id="{{ pid }}">
+                            {% endfor %}
+                        </datalist>
+
+                        {{ form.patient_id(style="display:none;", id="patient-hidden-select") }}
                     {% endif %}
                 </div>
-
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Select Tests</label>
@@ -53,4 +60,23 @@
     </div>
 
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("patient-search");
+    const hiddenSelect = document.getElementById("patient-hidden-select");
+    const dataList = document.getElementById("patient-list");
+
+    if (searchInput && hiddenSelect) {
+        searchInput.addEventListener("input", function () {
+            const options = dataList.querySelectorAll("option");
+            options.forEach(function (opt) {
+                if (opt.value === searchInput.value) {
+                    hiddenSelect.value = opt.getAttribute("data-id");
+                }
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -1,4 +1,10 @@
-from app.models.patient import Patient   # 👈 top pe import add karo
+from app.models.patient import Patient
+
+from app.models.booking import Booking, BookingItem
+from app.models.sample import Sample
+from app.models.patient import Patient, generate_patient_code
+
+
 from flask import (
     render_template,
     redirect,
@@ -89,12 +95,20 @@ def register():
         db.session.add(user)
         db.session.flush()
 
+        while True:
+            code = generate_patient_code()
+            if not Patient.query.filter_by(patient_code=code).first():
+                break
+
         patient_profile = Patient(
             user_id=user.id,
-            full_name=form.name.data
+            patient_code=code,
+            full_name=form.name.data,
+            phone=form.phone.data,
+            address=form.address.data
         )
-        db.session.add(patient_profile)
 
+        db.session.add(patient_profile)
         db.session.commit()
 
         flash(
@@ -180,14 +194,68 @@ def logout():
     )
 
 
+
 @auth.route("/dashboard")
 @login_required
 def dashboard():
+
     role_name = current_user.role.name
+    stats = {}
 
     if role_name == "Patient":
-        return render_template("auth/dashboard.html", section="patient")
+        section = "patient"
+
+        my_patient = Patient.query.filter_by(user_id=current_user.id).first()
+
+        if my_patient:
+            stats["total_bookings"] = Booking.query.filter_by(patient_id=my_patient.id).count()
+            stats["pending_bookings"] = Booking.query.filter_by(patient_id=my_patient.id, status="Pending").count()
+        else:
+            stats["total_bookings"] = 0
+            stats["pending_bookings"] = 0
+
     elif role_name == "Administrator":
-        return render_template("auth/dashboard.html", section="admin")
+        section = "admin"
+
+        stats["total_patients"] = Patient.query.count()
+        stats["total_bookings"] = Booking.query.count()
+        stats["total_revenue"] = db.session.query(
+            db.func.coalesce(db.func.sum(BookingItem.price), 0)
+        ).scalar()
+
+    elif role_name == "Receptionist":
+        section = "staff"
+
+        stats["pending_samples"] = BookingItem.query.filter(
+            ~BookingItem.sample.has()
+        ).count()
+        stats["today_bookings"] = Booking.query.count()   # abhi ke liye total, "aaj" wala filter baad mein
+
+    elif role_name == "Lab Technician":
+        section = "staff"
+
+        stats["pending_results"] = Sample.query.filter_by(status="Collected").count()
+
     else:
-        return render_template("auth/dashboard.html", section="staff")
+        section = "staff"
+
+    return render_template(
+        "auth/dashboard.html",
+        section=section,
+        stats=stats
+    )
+
+
+@auth.route("/profile")
+@login_required
+def profile():
+
+    patient_profile = None
+
+    if current_user.role.name == "Patient":
+        patient_profile = Patient.query.filter_by(user_id=current_user.id).first()
+
+    return render_template(
+        "auth/profile.html",
+        patient_profile=patient_profile
+    )

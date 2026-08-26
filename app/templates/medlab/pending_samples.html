@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h4 class="fw-bold mb-3">🧪 Pending Sample Collection</h4>
+
+    <form method="GET" class="mb-3">
+        <div class="input-group" style="max-width: 400px;">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search by Patient ID or Name..."
+                   value="{{ search }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Patient ID</th>
+                <th>Booking ID</th>
+                <th>Patient</th>
+                <th>Test</th>
+                <th>Sample Type</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.booking.patient.patient_code }}</td>
+                <td>{{ item.booking_id }}</td>
+                <td>{{ item.booking.patient.full_name }}</td>
+                <td>{{ item.test.name }}</td>
+                <td>{{ item.test.sample_type }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('medlab.collect_sample', item_id=item.id) }}">
+                        <button type="submit" class="btn btn-sm btn-success">Mark Collected</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">No pending samples 🎉</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

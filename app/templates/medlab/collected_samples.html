@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">🔬 Samples Awaiting Results</h4>
+
+    <form method="GET" class="mb-3">
+        <div class="input-group" style="max-width: 400px;">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search by Sample Code, Patient ID or Name..."
+                   value="{{ search }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Sample Code</th>
+                <th>Test</th>
+                <th>Patient</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in samples %}
+            <tr>
+                <td>{{ s.sample_code }}</td>
+                <td>{{ s.booking_item.test.name }}</td>
+                <td>{{ s.booking_item.booking.patient.full_name }} ({{ s.booking_item.booking.patient.patient_code }})</td>
+                <td>
+                    <a href="{{ url_for('medlab.enter_result', sample_id=s.id) }}" class="btn btn-sm btn-primary">
+                        Enter Result
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center text-muted">No samples pending 🎉</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

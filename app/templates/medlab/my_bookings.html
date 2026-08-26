@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h4 class="fw-bold mb-3">📋 My Bookings</h4>
+
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Booking ID</th>
+                <th>Booked On</th>
+                <th>Tests</th>
+                <th>Status</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bookings %}
+            <tr>
+                <td>#{{ b.id }}</td>
+                <td>{{ b.created_at.strftime('%d %b %Y') }}</td>
+                <td>
+                    <ul class="mb-0 ps-3">
+                        {% for item in b.items %}
+                        <li>{{ item.test.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td>
+                    {% if b.status == "Pending" %}
+                        <span class="badge bg-warning text-dark">{{ b.status }}</span>
+                    {% elif b.status == "Completed" %}
+                        <span class="badge bg-success">{{ b.status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ b.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    Rs. {{ b.items | sum(attribute="price") }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No bookings yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
