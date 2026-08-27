@@ -2,259 +2,377 @@
 
 {% block title %}Dashboard | MedLab{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dash { max-width: 1080px; }
+
+    /* ---------- Zone 1: header ---------- */
+    .dash-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 18px; flex-wrap: wrap; margin-bottom: 26px;
+    }
+    .dash-hello { font-size: 26px; font-weight: 800; color: #0f172a; margin: 0; }
+    .dash-sub   { font-size: 13px; color: #94a3b8; margin: 4px 0 0; }
+    .role-pill {
+        display: inline-block; background: #ccfbf1; color: #0f766e;
+        font-size: 11.5px; font-weight: 700; letter-spacing: .4px;
+        padding: 5px 12px; border-radius: 999px; text-transform: uppercase;
+    }
+    .btn-cta {
+        background: #0f172a; color: #fff; border: none; border-radius: 12px;
+        padding: 11px 22px; font-weight: 600; font-size: 14px; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-cta:hover { background: #1e293b; color: #fff; }
+
+    /* ---------- Zone 2: stat tiles ---------- */
+    .stat-row {
+        display: grid; gap: 16px; margin-bottom: 28px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .tile {
+        background: #fff; border: 1px solid #e8edf3; border-radius: 16px;
+        padding: 20px; text-decoration: none; display: block;
+        transition: .15s; position: relative;
+    }
+    .tile:hover { box-shadow: 0 10px 26px rgba(15,23,42,.09); transform: translateY(-2px); }
+    .tile .t-label {
+        font-size: 11px; text-transform: uppercase; letter-spacing: .7px;
+        color: #94a3b8; font-weight: 600; margin-bottom: 10px;
+    }
+    .tile .t-value { font-size: 30px; font-weight: 800; color: #0f172a; line-height: 1; }
+    .tile .t-more  { font-size: 12px; color: #0d9488; font-weight: 600; margin-top: 12px; }
+    .tile .t-icon {
+        position: absolute; top: 18px; right: 18px;
+        width: 36px; height: 36px; border-radius: 10px;
+        background: #f1f5f9; color: #64748b;
+        display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+
+    /* accent tile = jis cheez ko tawajjo chahiye */
+    .tile.accent { background: #0f172a; border-color: #0f172a; }
+    .tile.accent .t-label { color: #94a3b8; }
+    .tile.accent .t-value { color: #fff; }
+    .tile.accent .t-more  { color: #5eead4; }
+    .tile.accent .t-icon  { background: rgba(255,255,255,.1); color: #5eead4; }
+
+    /* ---------- Zone 3: panel + table ---------- */
+    .panel {
+        background: #fff; border: 1px solid #e8edf3;
+        border-radius: 16px; overflow: hidden;
+    }
+    .panel-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 20px; border-bottom: 1px solid #eef2f7;
+    }
+    .panel-head h2 { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; }
+    .panel-head a  { font-size: 12.5px; font-weight: 600; color: #0d9488; text-decoration: none; }
+
+    .panel table { width: 100%; margin: 0; border-collapse: collapse; }
+    .panel thead th {
+        font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px;
+        color: #94a3b8; font-weight: 600; padding: 11px 20px;
+        background: #fbfcfe; border-bottom: 1px solid #eef2f7; text-align: left;
+    }
+    .panel tbody td {
+        padding: 14px 20px; font-size: 13.5px; color: #334155;
+        border-bottom: 1px solid #f4f7fb; vertical-align: middle;
+    }
+    .panel tbody tr:last-child td { border-bottom: none; }
+    .panel tbody tr:hover { background: #fbfcfe; }
+    .cell-strong { font-weight: 600; color: #0f172a; }
+    .cell-dim    { color: #94a3b8; font-size: 12px; }
+
+    .badge-soft { padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+    .s-pending  { background: #fef3c7; color: #92400e; }
+    .s-progress { background: #e0f2fe; color: #075985; }
+    .s-done     { background: #dcfce7; color: #166534; }
+    .s-cancel   { background: #fee2e2; color: #991b1b; }
+
+    .empty-row { text-align: center; color: #94a3b8; padding: 40px 20px !important; }
+
+    /* ---------- shortcuts (mobile nav bhi) ---------- */
+    .shortcuts { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .sc-pill {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 999px;
+        padding: 8px 15px; font-size: 13px; color: #475569;
+        font-weight: 500; text-decoration: none;
+    }
+    .sc-pill:hover { border-color: #0d9488; color: #0f766e; }
+</style>
+{% endblock %}
+
 
 {% block content %}
+<div class="dash">
 
-<div class="mb-4">
+    <!-- ═══ Zone 1: header ═══ -->
+    <div class="dash-head">
+        <div>
+            <span class="role-pill">{{ current_user.role.name }}</span>
+            <h1 class="dash-hello mt-2">Good day, {{ current_user.name }}</h1>
+            <p class="dash-sub">{{ today_label }}</p>
+        </div>
 
-    <h1 class="fw-bold">
-        Good day, {{ current_user.name }} 👋
-    </h1>
-
-    <p class="text-muted">
-        Welcome back to your MedLab dashboard.
-    </p>
-
-</div>
-
-
-<!-- Role-based Stats -->
-
-{% if section == "patient" %}
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Total Bookings</p>
-            <h3 class="fw-bold">{{ stats.total_bookings }}</h3>
+        <div>
+            {% if section in ["patient", "admin", "reception"] %}
+                <a href="{{ url_for('medlab.book_test') }}" class="btn-cta">
+                    <i class="bi bi-calendar-plus"></i> Book a Test
+                </a>
+            {% elif section == "lab" %}
+                <a href="{{ url_for('medlab.collected_samples') }}" class="btn-cta">
+                    <i class="bi bi-clipboard2-check"></i> Enter Results
+                </a>
+            {% endif %}
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Pending Tests</p>
-            <h3 class="fw-bold">{{ stats.pending_bookings }}</h3>
-        </div>
-    </div>
-</div>
-
-{% elif section == "admin" %}
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Total Patients</p>
-            <h3 class="fw-bold">{{ stats.total_patients }}</h3>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Total Bookings</p>
-            <h3 class="fw-bold">{{ stats.total_bookings }}</h3>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Total Revenue</p>
-            <h3 class="fw-bold">Rs. {{ stats.total_revenue }}</h3>
-        </div>
-    </div>
-</div>
-
-{% elif current_user.role.name == "Receptionist" %}
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Pending Sample Collection</p>
-            <h3 class="fw-bold">{{ stats.pending_samples }}</h3>
-        </div>
-    </div>
-</div>
-
-{% elif current_user.role.name == "Lab Technician" %}
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="modern-card p-4">
-            <p class="text-muted mb-1">Samples Awaiting Results</p>
-            <h3 class="fw-bold">{{ stats.pending_results }}</h3>
-        </div>
-    </div>
-</div>
-{% endif %}
 
 
-<!-- Account Overview -->
+    <!-- ═══ Zone 2: stat tiles ═══ -->
+    <div class="stat-row">
 
-<div class="row g-4 mb-4">
-
-    <div class="col-md-4">
-        <div class="modern-card p-4">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <p class="text-muted mb-1">Account Status</p>
-                    <h4 class="fw-bold">Active</h4>
-                </div>
-                <div class="text-success fs-2">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
+        {% if section == "patient" %}
+            <a href="{{ url_for('medlab.my_bookings') }}" class="tile accent">
+                <div class="t-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="t-label">Pending Tests</div>
+                <div class="t-value">{{ stats.pending_bookings }}</div>
+                <div class="t-more">Track status &rarr;</div>
+            </a>
+            <a href="{{ url_for('medlab.my_bookings') }}" class="tile">
+                <div class="t-icon"><i class="bi bi-list-check"></i></div>
+                <div class="t-label">Total Bookings</div>
+                <div class="t-value">{{ stats.total_bookings }}</div>
+                <div class="t-more">View all &rarr;</div>
+            </a>
+            <div class="tile">
+                <div class="t-icon"><i class="bi bi-check2-circle"></i></div>
+                <div class="t-label">Completed</div>
+                <div class="t-value">{{ stats.completed_bookings }}</div>
             </div>
-        </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="modern-card p-4">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <p class="text-muted mb-1">Your Role</p>
-                    <h4 class="fw-bold">{{ current_user.role.name }}</h4>
-                </div>
-                <div class="text-primary fs-2">
-                    <i class="bi bi-person-badge-fill"></i>
-                </div>
+        {% elif section == "admin" %}
+            <div class="tile accent">
+                <div class="t-icon"><i class="bi bi-cash-coin"></i></div>
+                <div class="t-label">Total Revenue</div>
+                <div class="t-value">Rs. {{ "{:,.0f}".format(stats.total_revenue) }}</div>
             </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="modern-card p-4">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <p class="text-muted mb-1">Member Since</p>
-                    <h4 class="fw-bold">{{ current_user.created_at.strftime('%d %b %Y') }}</h4>
-                </div>
-                <div class="text-warning fs-2">
-                    <i class="bi bi-calendar-event-fill"></i>
-                </div>
+            <div class="tile">
+                <div class="t-icon"><i class="bi bi-people"></i></div>
+                <div class="t-label">Total Patients</div>
+                <div class="t-value">{{ stats.total_patients }}</div>
             </div>
-        </div>
+            <div class="tile">
+                <div class="t-icon"><i class="bi bi-journal-medical"></i></div>
+                <div class="t-label">Total Bookings</div>
+                <div class="t-value">{{ stats.total_bookings }}</div>
+            </div>
+
+        {% elif section == "reception" %}
+            <a href="{{ url_for('medlab.pending_samples') }}" class="tile accent">
+                <div class="t-icon"><i class="bi bi-clipboard2-pulse"></i></div>
+                <div class="t-label">Awaiting Collection</div>
+                <div class="t-value">{{ stats.pending_samples }}</div>
+                <div class="t-more">Collect now &rarr;</div>
+            </a>
+            <div class="tile">
+                <div class="t-icon"><i class="bi bi-calendar-check"></i></div>
+                <div class="t-label">Booked Today</div>
+                <div class="t-value">{{ stats.today_bookings }}</div>
+            </div>
+
+        {% elif section == "lab" %}
+            <a href="{{ url_for('medlab.collected_samples') }}" class="tile accent">
+                <div class="t-icon"><i class="bi bi-clipboard2-check"></i></div>
+                <div class="t-label">Awaiting Results</div>
+                <div class="t-value">{{ stats.pending_results }}</div>
+                <div class="t-more">Enter results &rarr;</div>
+            </a>
+            <div class="tile">
+                <div class="t-icon"><i class="bi bi-droplet-half"></i></div>
+                <div class="t-label">Collected Today</div>
+                <div class="t-value">{{ stats.today_collected }}</div>
+            </div>
+        {% endif %}
+
     </div>
 
-</div>
+
+    <!-- ═══ Zone 3: activity / queue ═══ -->
+
+    {% if section in ["patient", "admin"] %}
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Recent Bookings</h2>
+            {% if section == "patient" %}
+                <a href="{{ url_for('medlab.my_bookings') }}">View all</a>
+            {% endif %}
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking</th>
+                    {% if section == "admin" %}<th>Patient</th>{% endif %}
+                    <th>Tests</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in recent_bookings %}
+                <tr>
+                    <td>
+                        <div class="cell-strong">#{{ b.id }}</div>
+                        <div class="cell-dim">{{ b.created_at.strftime('%d %b %Y') }}</div>
+                    </td>
+
+                    {% if section == "admin" %}
+                    <td>
+                        <div class="cell-strong">{{ b.patient.full_name }}</div>
+                        <div class="cell-dim">{{ b.patient.patient_code }}</div>
+                    </td>
+                    {% endif %}
+
+                    <td>
+                        {% if b.items %}
+                            <div>{{ b.items[0].test.name }}</div>
+                            {% if b.items | length > 1 %}
+                                <div class="cell-dim">+{{ b.items | length - 1 }} more</div>
+                            {% endif %}
+                        {% else %}
+                            <span class="cell-dim">&mdash;</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <span class="badge-soft
+                            {%- if b.status == 'Pending' %} s-pending
+                            {%- elif b.status == 'Completed' %} s-done
+                            {%- elif b.status == 'Cancelled' %} s-cancel
+                            {%- else %} s-progress{% endif %}">{{ b.status }}</span>
+                    </td>
+
+                    <td class="cell-strong">
+                        Rs. {{ "{:,.0f}".format(b.items | sum(attribute="price")) }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-row">
+                        <i class="bi bi-inbox" style="font-size:24px;"></i>
+                        <div class="mt-2">No bookings yet.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 
-<!-- Quick Actions (role-specific) -->
+    {% elif section == "reception" %}
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Samples Awaiting Collection</h2>
+            <a href="{{ url_for('medlab.pending_samples') }}">View all</a>
+        </div>
 
-<div class="modern-card p-4">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Test</th>
+                    <th>Booking</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in queue %}
+                <tr>
+                    <td>
+                        <div class="cell-strong">{{ item.booking.patient.full_name }}</div>
+                        <div class="cell-dim">{{ item.booking.patient.patient_code }}</div>
+                    </td>
+                    <td>{{ item.test.name }}</td>
+                    <td class="cell-dim">#{{ item.booking.id }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="empty-row">
+                        <i class="bi bi-check2-all" style="font-size:24px;"></i>
+                        <div class="mt-2">All samples collected. Nothing pending.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <h4 class="fw-bold mb-4">Quick Actions</h4>
 
-    <div class="row g-3">
+    {% elif section == "lab" %}
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Samples Awaiting Result Entry</h2>
+            <a href="{{ url_for('medlab.collected_samples') }}">View all</a>
+        </div>
 
+        <table>
+            <thead>
+                <tr>
+                    <th>Sample</th>
+                    <th>Test</th>
+                    <th>Patient</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in queue %}
+                <tr>
+                    <td class="cell-strong">{{ s.sample_code }}</td>
+                    <td>{{ s.booking_item.test.name }}</td>
+                    <td>{{ s.booking_item.booking.patient.full_name }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="empty-row">
+                        <i class="bi bi-check2-all" style="font-size:24px;"></i>
+                        <div class="mt-2">No samples waiting for results.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+
+    <!-- shortcuts: halki si line, mobile pe navigation ka kaam bhi deti hai -->
+    <div class="shortcuts">
         {% if current_user.role.name in ["Patient", "Receptionist", "Administrator"] %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-calendar-plus fs-2 text-primary"></i>
-                <h5 class="fw-bold mt-3">Book a Test</h5>
-                <p class="text-muted">Schedule a laboratory test.</p>
-                <a href="{{ url_for('medlab.book_test') }}" class="btn btn-primary">Book Now</a>
-            </div>
-        </div>
+            <a href="{{ url_for('medlab.book_test') }}" class="sc-pill">
+                <i class="bi bi-calendar-plus"></i> Book a Test
+            </a>
         {% endif %}
-
+        {% if current_user.role.name == "Patient" %}
+            <a href="{{ url_for('medlab.my_bookings') }}" class="sc-pill">
+                <i class="bi bi-list-check"></i> My Bookings
+            </a>
+        {% endif %}
         {% if current_user.role.name == "Receptionist" %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-clipboard2-pulse fs-2 text-danger"></i>
-                <h5 class="fw-bold mt-3">Sample Collection</h5>
-                <p class="text-muted">Collect pending samples.</p>
-                <a href="{{ url_for('medlab.pending_samples') }}" class="btn btn-danger">View Pending</a>
-            </div>
-        </div>
+            <a href="{{ url_for('medlab.register_walkin_patient') }}" class="sc-pill">
+                <i class="bi bi-person-plus"></i> Register Walk-in
+            </a>
+            <a href="{{ url_for('medlab.pending_samples') }}" class="sc-pill">
+                <i class="bi bi-clipboard2-pulse"></i> Sample Collection
+            </a>
         {% endif %}
-
-
-        {% if current_user.role.name == "Receptionist" %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-person-plus fs-2 text-primary"></i>
-                <h5 class="fw-bold mt-3">Register Walk-in</h5>
-                <p class="text-muted">Register a new walk-in patient.</p>
-                <a href="{{ url_for('medlab.register_walkin_patient') }}" class="btn btn-primary">Register</a>
-            </div>
-        </div>
-        {% endif %}
-
-
         {% if current_user.role.name == "Lab Technician" %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-clipboard2-check fs-2 text-warning"></i>
-                <h5 class="fw-bold mt-3">Enter Results</h5>
-                <p class="text-muted">Samples awaiting result entry.</p>
-                <a href="{{ url_for('medlab.collected_samples') }}" class="btn btn-warning">View Samples</a>
-            </div>
-        </div>
+            <a href="{{ url_for('medlab.collected_samples') }}" class="sc-pill">
+                <i class="bi bi-clipboard2-check"></i> Enter Results
+            </a>
         {% endif %}
-
-        {% if current_user.role.name == "Patient" %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-file-earmark-medical fs-2 text-success"></i>
-                <h5 class="fw-bold mt-3">My Reports</h5>
-                <p class="text-muted">View your laboratory reports.</p>
-                <button class="btn btn-outline-success">Coming Soon</button>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if current_user.role.name == "Pathologist" %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-file-earmark-check fs-2 text-secondary"></i>
-                <h5 class="fw-bold mt-3">Verify Reports</h5>
-                <p class="text-muted">Reports awaiting verification.</p>
-                <button class="btn btn-outline-secondary">Coming Soon</button>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if current_user.role.name == "Patient" %}
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-list-check fs-2 text-primary"></i>
-                <h5 class="fw-bold mt-3">My Bookings</h5>
-                <p class="text-muted">Track your booked tests.</p>
-                <a href="{{ url_for('medlab.my_bookings') }}" class="btn btn-primary">View Bookings</a>
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="col-md-4">
-            <div class="border rounded-4 p-4 h-100">
-                <i class="bi bi-person-vcard fs-2 text-info"></i>
-                <h5 class="fw-bold mt-3">My Profile</h5>
-                <p class="text-muted">View and manage your account.</p>
-                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-info">View Profile</a>
-            </div>
-        </div>
-
+        <a href="{{ url_for('auth.profile') }}" class="sc-pill">
+            <i class="bi bi-person-vcard"></i> My Profile
+        </a>
     </div>
 
 </div>
-
-
-<!-- Account Information -->
-
-<div class="modern-card p-4 mt-4">
-
-    <h4 class="fw-bold mb-4">Account Information</h4>
-
-    <div class="row">
-
-        <div class="col-md-4 mb-3">
-            <small class="text-muted">Full Name</small>
-            <div class="fw-semibold">{{ current_user.name }}</div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <small class="text-muted">Email Address</small>
-            <div class="fw-semibold">{{ current_user.email }}</div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <small class="text-muted">Role</small>
-            <div class="fw-semibold">{{ current_user.role.name }}</div>
-        </div>
-
-    </div>
-
-</div>
-
 {% endblock %}

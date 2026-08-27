@@ -1,4 +1,7 @@
 from app.models.patient import Patient
+from datetime import datetime, timezone
+
+
 
 from app.models.booking import Booking, BookingItem
 from app.models.sample import Sample
@@ -194,13 +197,16 @@ def logout():
     )
 
 
-
 @auth.route("/dashboard")
 @login_required
 def dashboard():
 
     role_name = current_user.role.name
     stats = {}
+    recent_bookings = []
+    queue = []
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     if role_name == "Patient":
         section = "patient"
@@ -208,41 +214,63 @@ def dashboard():
         my_patient = Patient.query.filter_by(user_id=current_user.id).first()
 
         if my_patient:
-            stats["total_bookings"] = Booking.query.filter_by(patient_id=my_patient.id).count()
-            stats["pending_bookings"] = Booking.query.filter_by(patient_id=my_patient.id, status="Pending").count()
+            base_q = Booking.query.filter_by(patient_id=my_patient.id)
+
+            stats["total_bookings"]     = base_q.count()
+            stats["pending_bookings"]   = base_q.filter_by(status="Pending").count()
+            stats["completed_bookings"] = base_q.filter_by(status="Completed").count()
+
+            recent_bookings = base_q.order_by(Booking.created_at.desc()).limit(5).all()
         else:
-            stats["total_bookings"] = 0
-            stats["pending_bookings"] = 0
+            stats["total_bookings"]     = 0
+            stats["pending_bookings"]   = 0
+            stats["completed_bookings"] = 0
 
     elif role_name == "Administrator":
         section = "admin"
 
         stats["total_patients"] = Patient.query.count()
         stats["total_bookings"] = Booking.query.count()
-        stats["total_revenue"] = db.session.query(
+        stats["total_revenue"]  = db.session.query(
             db.func.coalesce(db.func.sum(BookingItem.price), 0)
         ).scalar()
 
-    elif role_name == "Receptionist":
-        section = "staff"
+        recent_bookings = Booking.query.order_by(Booking.created_at.desc()).limit(5).all()
 
-        stats["pending_samples"] = BookingItem.query.filter(
-            ~BookingItem.sample.has()
+    elif role_name == "Receptionist":
+        section = "reception"
+
+        pending_q = BookingItem.query.filter(~BookingItem.sample.has())
+
+        stats["pending_samples"] = pending_q.count()
+        stats["today_bookings"]  = Booking.query.filter(
+            db.func.date(Booking.created_at) == today
         ).count()
-        stats["today_bookings"] = Booking.query.count()   # abhi ke liye total, "aaj" wala filter baad mein
+
+        queue = pending_q.order_by(BookingItem.id.desc()).limit(6).all()
 
     elif role_name == "Lab Technician":
-        section = "staff"
+        section = "lab"
 
-        stats["pending_results"] = Sample.query.filter_by(status="Collected").count()
+        collected_q = Sample.query.filter_by(status="Collected")
+
+        stats["pending_results"] = collected_q.count()
+        stats["today_collected"] = Sample.query.filter(
+            db.func.date(Sample.collected_at) == today
+        ).count()
+
+        queue = collected_q.order_by(Sample.id.desc()).limit(6).all()
 
     else:
-        section = "staff"
+        section = "other"
 
     return render_template(
         "auth/dashboard.html",
         section=section,
-        stats=stats
+        stats=stats,
+        recent_bookings=recent_bookings,
+        queue=queue,
+        today_label=datetime.now(timezone.utc).strftime("%d %b %Y")
     )
 
 

@@ -9,7 +9,7 @@ from app.medlab import medlab
 from app.medlab.forms import BookingForm
 
 from app.models.patient import Patient
-from app.models.test import Test
+from app.models.test import Test, TestCategory
 from app.models.booking import Booking, BookingItem
 
 from app.models.sample import Sample
@@ -37,9 +37,13 @@ def book_test():
 
     form = BookingForm()
 
+    all_tests = Test.query.order_by(Test.name).all()
+
     form.test_ids.choices = [
-        (t.id, f"{t.name} - Rs.{t.price}") for t in Test.query.all()
+        (t.id, f"{t.name} - Rs.{t.price}") for t in all_tests
     ]
+
+    categories = TestCategory.query.order_by(TestCategory.name).all()
 
     is_patient = current_user.role.name == "Patient"
     my_patient = None
@@ -89,7 +93,9 @@ def book_test():
     return render_template(
         "medlab/book_test.html",
         form=form,
-        is_patient=is_patient
+        is_patient=is_patient,
+        tests=all_tests,
+        categories=categories
     )
 
 

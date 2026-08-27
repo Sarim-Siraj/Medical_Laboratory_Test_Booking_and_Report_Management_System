@@ -1,82 +1,406 @@
 {% extends "base.html" %}
 
+{% block title %}Choose Test | MedLab{% endblock %}
+
+{% block extra_css %}
+<style>
+    .choose-wrap { max-width: 1100px; margin: 0 auto; }
+
+    .choose-title {
+        text-align: center;
+        font-weight: 800;
+        font-size: 40px;
+        color: #0f172a;
+        letter-spacing: -0.5px;
+        margin-bottom: 28px;
+    }
+
+    /* ---- top filter row ---- */
+    .filter-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+    .field-box {
+        position: relative;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px 12px 4px;
+        min-width: 300px;
+        flex: 1 1 300px;
+    }
+    .field-box label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #475569;
+        margin: 0;
+    }
+    .field-box select,
+    .field-box input {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        padding: 2px 0 !important;
+        font-size: 14px;
+        width: 100%;
+        background: transparent;
+        color: #0f172a;
+    }
+
+    .search-group { display: flex; flex: 1 1 340px; min-width: 320px; }
+    .search-group input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-right: none;
+        border-radius: 10px 0 0 10px;
+        padding: 14px 16px;
+        font-size: 14px;
+        outline: none;
+    }
+    .search-group input:focus { border-color: #14b8a6; }
+    .search-group .search-btn {
+        background: #0d9488;
+        color: #fff;
+        border: none;
+        width: 54px;
+        border-radius: 0 10px 10px 0;
+        font-size: 17px;
+    }
+
+    .hint { font-size: 12px; color: #94a3b8; margin: 8px 0 22px 4px; }
+
+    /* ---- category tabs ---- */
+    .cat-tabs {
+        display: flex;
+        gap: 26px;
+        overflow-x: auto;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0;
+        margin-bottom: 20px;
+    }
+    .cat-tab {
+        background: none;
+        border: none;
+        white-space: nowrap;
+        padding: 10px 2px 12px;
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1px;
+    }
+    .cat-tab:hover { color: #0f766e; }
+    .cat-tab.active { color: #0d9488; font-weight: 700; border-bottom-color: #0d9488; }
+
+    /* ---- selected chips ---- */
+    .chip-bar {
+        display: none;
+        flex-wrap: wrap;
+        gap: 10px;
+        border: 1px dashed #cbd5e1;
+        background: #fff;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 22px;
+    }
+    .chip-bar.show { display: flex; }
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #334155;
+    }
+    .chip button {
+        background: #94a3b8;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 18px; height: 18px;
+        font-size: 11px;
+        line-height: 1;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .chip button:hover { background: #ef4444; }
+
+    /* ---- test cards ---- */
+    .test-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 18px;
+    }
+    .test-card {
+        position: relative;
+        display: block;
+        background: #fff;
+        border: 1px solid #e8edf3;
+        border-radius: 14px;
+        padding: 20px 18px 18px;
+        cursor: pointer;
+        transition: 0.15s;
+        margin: 0;
+    }
+    .test-card:hover { box-shadow: 0 10px 26px rgba(15,23,42,0.08); }
+    .test-card input { position: absolute; opacity: 0; pointer-events: none; }
+
+    .tick {
+        position: absolute;
+        top: 14px; right: 14px;
+        width: 20px; height: 20px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 5px;
+        display: flex; align-items: center; justify-content: center;
+        color: transparent;
+        font-size: 12px;
+    }
+    .test-card input:checked ~ .tick {
+        background: #f59e0b;
+        border-color: #f59e0b;
+        color: #fff;
+    }
+    .test-card input:checked { }
+    .test-card:has(input:checked) {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 1px #f59e0b;
+    }
+
+    .card-cat {
+        font-size: 10.5px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        font-weight: 600;
+        margin-bottom: 10px;
+        padding-right: 26px;
+    }
+    .card-name {
+        font-size: 17px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.3;
+        margin-bottom: 6px;
+    }
+    .card-meta { font-size: 11.5px; color: #94a3b8; margin-bottom: 16px; }
+    .card-foot { display: flex; align-items: baseline; justify-content: space-between; }
+    .card-price { font-size: 15px; font-weight: 700; color: #0f172a; }
+    .card-tag { font-size: 12px; color: #0d9488; font-weight: 600; }
+
+    .empty-note {
+        display: none;
+        text-align: center;
+        color: #94a3b8;
+        padding: 50px 0;
+    }
+
+    /* ---- sticky total bar ---- */
+    .total-bar {
+        position: sticky;
+        bottom: 0;
+        margin-top: 26px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: 0 -6px 24px rgba(15,23,42,0.07);
+    }
+    .total-bar .info { font-size: 14px; color: #475569; }
+    .total-bar .amount { font-weight: 800; color: #0f172a; font-size: 18px; }
+    .btn-book {
+        background: #0f172a;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 30px;
+        font-weight: 600;
+    }
+    .btn-book:hover:enabled { background: #1e293b; color: #fff; }
+    .btn-book:disabled { opacity: 0.45; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
+<div class="choose-wrap">
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">📋 Book a Lab Test</h4>
-        </div>
+    <h1 class="choose-title">Choose Test</h1>
 
-        <div class="card-body">
+    <form method="POST" id="bookForm">
+        {{ form.hidden_tag() }}
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'danger' else category }} alert-dismissible fade show"
-                role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <!-- top row: patient + search -->
+        <div class="filter-row">
+
+            <div class="field-box">
+                <label>Patient</label>
+                {% if is_patient %}
+                    <input type="text" value="{{ form.patient_id.choices[0][1] }}" disabled>
+                    {{ form.patient_id(style="display:none;") }}
+                {% else %}
+                    {{ form.patient_id(class="form-select") }}
+                {% endif %}
             </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
 
-            <form method="POST">
-                {{ form.hidden_tag() }}
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Patient</label>
-
-                    {% if is_patient %}
-                        <input type="text" class="form-control" value="{{ form.patient_id.choices[0][1] }}" disabled>
-                        {{ form.patient_id(style="display:none;") }}
-                    {% else %}
-                        <input type="text" list="patient-list" class="form-control" id="patient-search"
-                               placeholder="Type patient name or ID to search..." autocomplete="off">
-                        <datalist id="patient-list">
-                            {% for pid, label in form.patient_id.choices %}
-                                <option value="{{ label }}" data-id="{{ pid }}">
-                            {% endfor %}
-                        </datalist>
-
-                        {{ form.patient_id(style="display:none;", id="patient-hidden-select") }}
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Select Tests</label>
-                    {{ form.test_ids(class="form-select", size="6") }}
-                    <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple tests</small>
-                </div>
-
-                <div class="d-grid">
-                    {{ form.submit(class="btn btn-primary btn-lg") }}
-                </div>
-
-            </form>
+            <div class="search-group">
+                <input type="text" id="testSearch" autocomplete="off"
+                       placeholder="-- Search for any tests (eg. blood, thyroid etc..) --">
+                <button type="button" class="search-btn"><i class="bi bi-search"></i></button>
+            </div>
 
         </div>
-    </div>
 
+        <div class="hint">* Select a patient, then tick one or more tests below.</div>
+
+        {% for e in form.patient_id.errors %}
+            <div class="alert alert-danger py-2">{{ e }}</div>
+        {% endfor %}
+        {% for e in form.test_ids.errors %}
+            <div class="alert alert-danger py-2">{{ e }}</div>
+        {% endfor %}
+
+        <!-- category tabs -->
+        <div class="cat-tabs">
+            <button type="button" class="cat-tab active" data-cat="all">All Tests</button>
+            {% for c in categories %}
+                <button type="button" class="cat-tab" data-cat="{{ c.name }}">{{ c.name }}</button>
+            {% endfor %}
+        </div>
+
+        <!-- selected chips -->
+        <div class="chip-bar" id="chipBar"></div>
+
+        <!-- cards -->
+        <div class="test-grid" id="testGrid">
+            {% for t in tests %}
+            <label class="test-card"
+                   data-cat="{{ t.category.name }}"
+                   data-name="{{ t.name|lower }} {{ t.code|lower }} {{ t.category.name|lower }}"
+                   data-price="{{ t.price }}"
+                   data-label="{{ t.name }}"
+                   data-id="{{ t.id }}">
+
+                <input type="checkbox" name="test_ids" value="{{ t.id }}"
+                       {% if form.test_ids.data and t.id in form.test_ids.data %}checked{% endif %}>
+                <span class="tick"><i class="bi bi-check-lg"></i></span>
+
+                <div class="card-cat">{{ t.category.name }}</div>
+                <div class="card-name">{{ t.name }}</div>
+                <div class="card-meta">
+                    {{ t.code }}{% if t.turnaround_hours %} &middot; ~{{ t.turnaround_hours }}h{% endif %}
+                </div>
+                <div class="card-foot">
+                    <span class="card-price">Rs. {{ "{:,.0f}".format(t.price) }}</span>
+                    {% if t.sample_type %}<span class="card-tag">{{ t.sample_type }}</span>{% endif %}
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+
+        <div class="empty-note" id="emptyNote">
+            <i class="bi bi-search" style="font-size:26px;"></i>
+            <div class="mt-2">No tests match your search.</div>
+        </div>
+
+        <!-- total bar -->
+        <div class="total-bar">
+            <div class="info">
+                <span id="countTxt">0 tests selected</span>
+                &nbsp;&middot;&nbsp; Total: <span class="amount" id="totalTxt">Rs. 0</span>
+            </div>
+            <button type="submit" class="btn-book" id="bookBtn" disabled>Book Tests</button>
+        </div>
+
+    </form>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("patient-search");
-    const hiddenSelect = document.getElementById("patient-hidden-select");
-    const dataList = document.getElementById("patient-list");
 
-    if (searchInput && hiddenSelect) {
-        searchInput.addEventListener("input", function () {
-            const options = dataList.querySelectorAll("option");
-            options.forEach(function (opt) {
-                if (opt.value === searchInput.value) {
-                    hiddenSelect.value = opt.getAttribute("data-id");
-                }
-            });
-        });
+    const cards     = Array.from(document.querySelectorAll(".test-card"));
+    const searchBox = document.getElementById("testSearch");
+    const tabs      = document.querySelectorAll(".cat-tab");
+    const chipBar   = document.getElementById("chipBar");
+    const emptyNote = document.getElementById("emptyNote");
+    const countTxt  = document.getElementById("countTxt");
+    const totalTxt  = document.getElementById("totalTxt");
+    const bookBtn   = document.getElementById("bookBtn");
+
+    let activeCat = "all";
+
+    function money(n) {
+        return "Rs. " + n.toLocaleString("en-IN", { maximumFractionDigits: 0 });
     }
+
+    function applyFilter() {
+        const q = searchBox.value.trim().toLowerCase();
+        let shown = 0;
+
+        cards.forEach(function (card) {
+            const catOk    = activeCat === "all" || card.dataset.cat === activeCat;
+            const searchOk = q === "" || card.dataset.name.includes(q);
+            const show     = catOk && searchOk;
+            card.style.display = show ? "block" : "none";
+            if (show) shown++;
+        });
+
+        emptyNote.style.display = shown === 0 ? "block" : "none";
+    }
+
+    function refreshSummary() {
+        const picked = cards.filter(c => c.querySelector("input").checked);
+
+        // chips
+        chipBar.innerHTML = "";
+        picked.forEach(function (card) {
+            const chip = document.createElement("span");
+            chip.className = "chip";
+            chip.textContent = card.dataset.label;
+
+            const x = document.createElement("button");
+            x.type = "button";
+            x.innerHTML = "&times;";
+            x.addEventListener("click", function (ev) {
+                ev.preventDefault();
+                card.querySelector("input").checked = false;
+                refreshSummary();
+            });
+
+            chip.appendChild(x);
+            chipBar.appendChild(chip);
+        });
+        chipBar.classList.toggle("show", picked.length > 0);
+
+        // count + total
+        const total = picked.reduce((s, c) => s + parseFloat(c.dataset.price || 0), 0);
+        countTxt.textContent = picked.length + (picked.length === 1 ? " test selected" : " tests selected");
+        totalTxt.textContent = money(total);
+        bookBtn.disabled = picked.length === 0;
+    }
+
+    // events
+    searchBox.addEventListener("input", applyFilter);
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            activeCat = tab.dataset.cat;
+            applyFilter();
+        });
+    });
+
+    cards.forEach(function (card) {
+        card.querySelector("input").addEventListener("change", refreshSummary);
+    });
+
+    applyFilter();
+    refreshSummary();
 });
 </script>
 {% endblock %}
