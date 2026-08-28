@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">📢 Manage Complaints</h4>
+    <table class="table table-bordered">
+        <thead><tr><th>Patient</th><th>Description</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr>
+                <td>{{ c.patient.full_name }}</td>
+                <td>{{ c.description }}</td>
+                <td><span class="badge bg-{{ 'success' if c.status == 'Resolved' else 'warning text-dark' }}">{{ c.status }}</span></td>
+                <td>
+                    {% if c.status != "Resolved" %}
+                    <form method="POST" action="{{ url_for('medlab.resolve_complaint', complaint_id=c.id) }}">
+                        <button class="btn btn-sm btn-success">Resolve</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted">No complaints.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

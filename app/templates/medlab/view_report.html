@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+
+        <h4 class="fw-bold">🧾 Lab Report — #{{ report.id }}</h4>
+        <a href="{{ url_for('medlab.download_report', report_id=report.id) }}"
+            class="btn btn-outline-primary btn-sm float-end">
+            <i class="bi bi-download"></i> Download PDF
+        </a>
+        <p><strong>Patient:</strong> {{ booking.patient.full_name }} ({{ booking.patient.patient_code }})</p>
+        <p><strong>Date:</strong> {{ report.generated_at.strftime('%d %b %Y') }}</p>
+        <p><strong>Status:</strong>
+            <span class="badge bg-{{ 'success' if report.status == 'Verified' else 'warning text-dark' }}">
+                {{ report.status }}
+            </span>
+        </p>
+
+        <hr>
+
+        {% for item in booking.items %}
+        <h6 class="fw-bold mt-3">{{ item.test.name }}</h6>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if item.sample and item.sample.results %}
+                {% for r in item.sample.results %}
+                <tr>
+                    <td>{{ r.parameter }}</td>
+                    <td>{{ r.value }}</td>
+                    <td>{{ r.unit }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-muted text-center">No results</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}

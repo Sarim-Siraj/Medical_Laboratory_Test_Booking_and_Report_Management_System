@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">📄 My Reports</h4>
+    <table class="table table-bordered">
+        <thead><tr><th>Report ID</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+            {% for r in reports %}
+            <tr>
+                <td>#{{ r.id }}</td>
+                <td>{{ r.generated_at.strftime('%d %b %Y') }}</td>
+                <td><span class="badge bg-success">{{ r.status }}</span></td>
+                <td><a href="{{ url_for('medlab.view_report', report_id=r.id) }}" class="btn btn-sm btn-primary">View</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="text-center text-muted">No reports yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

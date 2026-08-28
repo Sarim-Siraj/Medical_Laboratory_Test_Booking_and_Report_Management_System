@@ -1,4 +1,6 @@
 from flask_wtf import FlaskForm
+
+
 from wtforms import (
     StringField,
     SelectField,
@@ -13,20 +15,17 @@ from wtforms.validators import (
 )
 
 
+
+
+
 class BookingForm(FlaskForm):
-
-    patient_id = SelectField(
-        "Patient",
-        coerce=int,
+    patient_id = SelectField("Patient", coerce=int, validators=[DataRequired()])
+    test_ids = SelectMultipleField("Select Tests", coerce=int, validators=[DataRequired()])
+    payment_method = SelectField(
+        "Payment Method",
+        choices=[("Cash", "Cash"), ("Card", "Card"), ("Online", "Online")],
         validators=[DataRequired()]
     )
-
-    test_ids = SelectMultipleField(
-        "Select Tests",
-        coerce=int,
-        validators=[DataRequired()]
-    )
-
     submit = SubmitField("Book Tests")
 
 

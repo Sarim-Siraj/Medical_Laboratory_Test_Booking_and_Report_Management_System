@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">📢 File a Complaint</h4>
+
+    <form method="POST" class="mb-4">
+        <textarea name="description" class="form-control mb-2" rows="3" placeholder="Describe your issue..."></textarea>
+        <button class="btn btn-primary">Submit</button>
+    </form>
+
+    <table class="table table-bordered">
+        <thead><tr><th>Description</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr>
+                <td>{{ c.description }}</td>
+                <td><span class="badge bg-{{ 'success' if c.status == 'Resolved' else 'warning text-dark' }}">{{ c.status }}</span></td>
+                <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="text-center text-muted">No complaints filed.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

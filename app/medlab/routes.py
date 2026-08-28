@@ -22,6 +22,18 @@ from app.medlab.forms import ResultEntryForm
 from app.models.patient import Patient, generate_patient_code
 from app.medlab.forms import WalkInPatientForm
 
+from app.models.report import Report, ReportVerification
+
+from app.models.complaint import Complaint
+
+from app.models.audit_log import AuditLog
+
+from flask import make_response
+from xhtml2pdf import pisa
+from io import BytesIO
+
+from app.models.payment import Payment
+
 
 import random
 import string
@@ -84,6 +96,21 @@ def book_test():
                 price=t.price
             )
             db.session.add(item)
+
+
+
+        total_price = sum(t.price for t in selected_tests)
+
+
+        db.session.add(Payment(
+            booking_id=new_booking.id,
+            amount=total_price,
+            method=form.payment_method.data,
+            status="Paid"
+        ))
+
+        db.session.commit()
+        flash("Booking created successfully!", "success")
 
         db.session.commit()
 
@@ -211,6 +238,15 @@ def enter_result(sample_id):
         db.session.add(new_result)
 
         sample.status = "Completed"
+        booking = sample.booking_item.booking
+        all_done = all(
+            item.sample and item.sample.status == "Completed"
+            for item in booking.items)
+        if all_done and not booking.report:
+            db.session.add(Report(booking_id=booking.id))
+
+        if all_done:
+            booking.status = "Completed"
 
         db.session.commit()
 
@@ -284,3 +320,133 @@ def register_walkin_patient():
         )
 
     return render_template("medlab/register_walkin.html", form=form)
+
+
+@medlab.route("/reports/pending")
+@login_required
+def pending_reports():
+    reports = Report.query.filter_by(status="Pending Verification").all()
+    return render_template("medlab/pending_reports.html", reports=reports)
+
+
+@medlab.route("/reports/<int:report_id>/verify", methods=["POST"])
+@login_required
+def verify_report(report_id):
+    report = Report.query.get_or_404(report_id)
+    staff_record = Staff.query.filter_by(user_id=current_user.id).first()
+
+    verification = ReportVerification(
+        report_id=report.id,
+        verified_by=staff_record.id if staff_record else None,
+        verified_at=datetime.now(timezone.utc)
+    )
+    db.session.add(verification)
+    report.status = "Verified"
+    db.session.add(AuditLog(
+        user_id=current_user.id,
+        action="Verified Report",
+        entity_type="Report",
+        entity_id=report.id
+        ))
+    db.session.commit()
+
+    flash("Report verified!", "success")
+    return redirect(url_for("medlab.pending_reports"))
+
+
+@medlab.route("/my-reports")
+@login_required
+def my_reports():
+    my_patient = Patient.query.filter_by(user_id=current_user.id).first()
+    reports = Report.query.join(Booking).filter(
+        Booking.patient_id == my_patient.id,
+        Report.status == "Verified"
+    ).all()
+    return render_template("medlab/my_reports.html", reports=reports)
+
+
+@medlab.route("/complaints/new", methods=["GET", "POST"])
+@login_required
+def new_complaint():
+    if current_user.role.name != "Patient":
+        flash("Only patients can file complaints.", "danger")
+        return redirect(url_for("auth.dashboard"))
+
+    my_patient = Patient.query.filter_by(user_id=current_user.id).first()
+
+    if request.method == "POST":
+        desc = request.form.get("description", "").strip()
+        if not desc:
+            flash("Description is required.", "danger")
+        else:
+            db.session.add(Complaint(patient_id=my_patient.id, description=desc))
+            db.session.commit()
+            flash("Complaint submitted.", "success")
+            return redirect(url_for("medlab.new_complaint"))
+
+    my_complaints = Complaint.query.filter_by(patient_id=my_patient.id).order_by(Complaint.created_at.desc()).all()
+    return render_template("medlab/complaints.html", complaints=my_complaints)
+
+
+@medlab.route("/complaints/manage")
+@login_required
+def manage_complaints():
+    if current_user.role.name not in ["Administrator", "Receptionist"]:
+        flash("Not authorized.", "danger")
+        return redirect(url_for("auth.dashboard"))
+
+    all_complaints = Complaint.query.order_by(Complaint.created_at.desc()).all()
+    return render_template("medlab/manage_complaints.html", complaints=all_complaints)
+
+
+@medlab.route("/complaints/<int:complaint_id>/resolve", methods=["POST"])
+@login_required
+def resolve_complaint(complaint_id):
+    c = Complaint.query.get_or_404(complaint_id)
+    c.status = "Resolved"
+    db.session.commit()
+    flash("Complaint marked resolved.", "success")
+    return redirect(url_for("medlab.manage_complaints"))
+
+
+@medlab.route("/audit-logs")
+@login_required
+def audit_logs():
+    if current_user.role.name != "Administrator":
+        flash("Not authorized.", "danger")
+        return redirect(url_for("auth.dashboard"))
+
+    logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(100).all()
+    return render_template("medlab/audit_logs.html", logs=logs)
+
+
+
+
+@medlab.route("/reports/<int:report_id>/view")
+@login_required
+def view_report(report_id):
+    report = Report.query.get_or_404(report_id)
+    booking = report.booking
+    return render_template("medlab/view_report.html", report=report, booking=booking)
+
+
+
+
+
+
+@medlab.route("/reports/<int:report_id>/download")
+@login_required
+def download_report(report_id):
+    report = Report.query.get_or_404(report_id)
+    booking = report.booking
+
+    html = render_template("medlab/report_pdf.html", report=report, booking=booking)
+
+    pdf_buffer = BytesIO()
+    pisa.CreatePDF(html, dest=pdf_buffer)
+    pdf_buffer.seek(0)
+
+    response = make_response(pdf_buffer.read())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"attachment; filename=report_{report.id}.pdf"
+    return response
