@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
 from wtforms.validators import DataRequired, Optional, Regexp, Length
 
@@ -55,6 +55,26 @@ class RegisterForm(FlaskForm):
         validators=[
             DataRequired(message="Address is required."),
             Length(max=255, message="Address is too long.")
+        ]
+    )
+
+    dob = DateField(
+        "Date of Birth",
+        validators=[
+            DataRequired(message="Date of birth is required.")
+        ]
+    )
+
+    gender = SelectField(
+        "Gender",
+        choices=[
+            ("", "Select Gender"),
+            ("Male", "Male"),
+            ("Female", "Female"),
+            ("Other", "Other")
+        ],
+        validators=[
+            DataRequired(message="Gender is required.")
         ]
     )
 

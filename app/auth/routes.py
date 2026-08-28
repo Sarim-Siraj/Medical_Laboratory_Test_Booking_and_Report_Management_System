@@ -8,6 +8,13 @@ from app.models.sample import Sample
 from app.models.patient import Patient, generate_patient_code
 
 
+from app.models.otp import OTP, generate_otp
+from flask_mail import Message
+from app import mail
+from flask import session
+from flask import request
+
+
 from flask import (
     render_template,
     redirect,
@@ -19,7 +26,8 @@ from flask_login import (
     login_user,
     logout_user,
     login_required,
-    current_user
+    current_user,
+    
 )
 
 from app import db, login_manager
@@ -49,56 +57,57 @@ def load_user(user_id):
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
-
     if current_user.is_authenticated:
-        return redirect(
-            url_for("auth.dashboard")
-        )
+        return redirect(url_for("auth.dashboard"))
 
     form = RegisterForm()
 
     if form.validate_on_submit():
+        if User.query.filter_by(email=form.email.data.lower()).first():
+            flash("Email already registered.", "danger")
+            return redirect(url_for("auth.register"))
 
-        existing_user = User.query.filter_by(
-            email=form.email.data.lower()
-        ).first()
+        session["pending_user"] = {
+            "name": form.name.data,
+            "email": form.email.data.lower(),
+            "phone": form.phone.data,
+            "address": form.address.data,
+            "password": form.password.data
+        }
 
-        if existing_user:
+        code = generate_otp()
+        db.session.add(OTP(email=form.email.data.lower(), code=code))
+        db.session.commit()
 
-            flash(
-                "Email already registered.",
-                "danger"
-            )
+        msg = Message("Your MedLab OTP", recipients=[form.email.data.lower()])
+        msg.body = f"Your verification code is: {code}"
+        mail.send(msg)
 
-            return redirect(
-                url_for("auth.register")
-            )
+        return redirect(url_for("auth.verify_otp"))
 
-        patient_role = Role.query.filter_by(
-            name="Patient"
-        ).first()
+    return render_template("auth/register.html", form=form)
 
-        if not patient_role:
 
-            flash(
-                "Patient role does not exist.",
-                "danger"
-            )
+@auth.route("/verify-otp", methods=["GET", "POST"])
+def verify_otp():
+    pending = session.get("pending_user")
+    if not pending:
+        return redirect(url_for("auth.register"))
 
-            return redirect(
-                url_for("auth.register")
-            )
+    if request.method == "POST":
+        entered = request.form.get("code", "").strip()
+        otp = OTP.query.filter_by(email=pending["email"], code=entered, is_used=False)\
+                        .order_by(OTP.id.desc()).first()
 
-        user = User(
-            name=form.name.data,
-            email=form.email.data.lower(),
-            role=patient_role
-        )
+        if not otp:
+            flash("Invalid or expired code.", "danger")
+            return render_template("auth/verify_otp.html")
 
-        user.set_password(
-            form.password.data
-        )
+        otp.is_used = True
 
+        patient_role = Role.query.filter_by(name="Patient").first()
+        user = User(name=pending["name"], email=pending["email"], role=patient_role)
+        user.set_password(pending["password"])
         db.session.add(user)
         db.session.flush()
 
@@ -107,30 +116,17 @@ def register():
             if not Patient.query.filter_by(patient_code=code).first():
                 break
 
-        patient_profile = Patient(
-            user_id=user.id,
-            patient_code=code,
-            full_name=form.name.data,
-            phone=form.phone.data,
-            address=form.address.data
-        )
-
-        db.session.add(patient_profile)
+        db.session.add(Patient(
+            user_id=user.id, patient_code=code,
+            full_name=pending["name"], phone=pending["phone"], address=pending["address"]
+        ))
         db.session.commit()
+        session.pop("pending_user", None)
 
-        flash(
-            "Registration successful. Please login.",
-            "success"
-        )
+        flash("Registration successful. Please login.", "success")
+        return redirect(url_for("auth.login"))
 
-        return redirect(
-            url_for("auth.login")
-        )
-
-    return render_template(
-        "auth/register.html",
-        form=form
-    )
+    return render_template("auth/verify_otp.html")
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():

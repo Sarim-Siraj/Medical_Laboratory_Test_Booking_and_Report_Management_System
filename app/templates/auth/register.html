@@ -4,7 +4,10 @@
 
 {% block extra_css %}
 <style>
-    body { margin: 0; padding: 0; }
+    body {
+        margin: 0;
+        padding: 0;
+    }
 
     .auth-wrapper {
         min-height: 100vh;
@@ -34,7 +37,10 @@
         color: white;
     }
 
-    .auth-visual i { font-size: 120px; opacity: 0.25; }
+    .auth-visual i {
+        font-size: 120px;
+        opacity: 0.25;
+    }
 
     .auth-form-side {
         flex: 1;
@@ -44,12 +50,36 @@
         justify-content: center;
     }
 
-    .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-    .auth-logo i { font-size: 26px; color: #0f766e; }
-    .auth-logo span { font-weight: 800; font-size: 20px; color: #0f172a; }
+    .auth-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
 
-    .auth-title { font-weight: 800; font-size: 24px; color: #0f172a; margin-bottom: 6px; }
-    .auth-subtitle { color: #64748b; margin-bottom: 22px; font-size: 14px; }
+    .auth-logo i {
+        font-size: 26px;
+        color: #0f766e;
+    }
+
+    .auth-logo span {
+        font-weight: 800;
+        font-size: 20px;
+        color: #0f172a;
+    }
+
+    .auth-title {
+        font-weight: 800;
+        font-size: 24px;
+        color: #0f172a;
+        margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+        color: #64748b;
+        margin-bottom: 22px;
+        font-size: 14px;
+    }
 
     .auth-input {
         border-radius: 14px !important;
@@ -72,10 +102,16 @@
         border: none;
         width: 100%;
     }
-    .btn-auth:hover { background: #1e293b; color: white; }
+
+    .btn-auth:hover {
+        background: #1e293b;
+        color: white;
+    }
 
     @media (max-width: 768px) {
-        .auth-visual { display: none; }
+        .auth-visual {
+            display: none;
+        }
     }
 </style>
 {% endblock %}
@@ -101,33 +137,50 @@
             </p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
             {% endwith %}
 
             <form method="POST">
                 {{ form.hidden_tag() }}
 
                 {{ form.name(class="form-control auth-input", placeholder="Full name") }}
-                {% for error in form.name.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor %}
+                {% for error in form.name.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor
+                %}
 
                 {{ form.email(class="form-control auth-input", placeholder="Email address") }}
-                {% for error in form.email.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor %}
+                {% for error in form.email.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor
+                %}
 
                 {{ form.phone(class="form-control auth-input", placeholder="Phone number") }}
-                {% for error in form.phone.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor %}
+                {% for error in form.phone.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor
+                %}
 
                 {{ form.address(class="form-control auth-input", placeholder="Address") }}
-                {% for error in form.address.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor %}
+                {% for error in form.address.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{%
+                endfor %}
+
+
+                {{ form.dob.label(class="form-label") }}
+                {{ form.dob(class="form-control auth-input", type="date") }}
+                {% for error in form.dob.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor
+                %}
+
+                {{ form.gender.label(class="form-label") }}
+                {{ form.gender(class="form-select auth-input") }}
+                {% for error in form.gender.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{%
+                endfor %}
 
                 {{ form.password(class="form-control auth-input", placeholder="Create a password") }}
-                {% for error in form.password.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor %}
+                {% for error in form.password.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{%
+                endfor %}
 
                 {{ form.confirm_password(class="form-control auth-input", placeholder="Confirm password") }}
-                {% for error in form.confirm_password.errors %}<small class="text-danger d-block mb-2">{{ error }}</small>{% endfor %}
+                {% for error in form.confirm_password.errors %}<small class="text-danger d-block mb-2">{{ error
+                    }}</small>{% endfor %}
 
                 <button type="submit" class="btn btn-auth mt-2">Signup</button>
             </form>

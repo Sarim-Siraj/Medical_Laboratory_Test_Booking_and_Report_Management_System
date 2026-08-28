@@ -5,7 +5,8 @@ from flask_migrate import Migrate
 
 from config import Config
 
-
+from flask_mail import Mail
+mail = Mail()
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
@@ -17,6 +18,7 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+    mail.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
 

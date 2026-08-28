@@ -38,6 +38,9 @@ from app.models.payment import Payment
 import random
 import string
 
+from flask_mail import Message
+from app import mail
+
 def generate_sample_code():
     random_part = "".join(random.choices(string.digits, k=6))
     return f"SMP-{random_part}"
@@ -307,7 +310,9 @@ def register_walkin_patient():
             patient_code=code,
             full_name=form.full_name.data,
             phone=form.phone.data,
-            address=form.address.data
+            address=form.address.data,
+            dob=form.dob.data,          
+            gender=form.gender.data     
         )
 
         db.session.add(new_patient)
@@ -342,6 +347,11 @@ def verify_report(report_id):
     )
     db.session.add(verification)
     report.status = "Verified"
+    patient_user = report.booking.patient.user
+    if patient_user and patient_user.email and "@medlab.walkin" not in patient_user.email:
+        msg = Message("Your Report is Ready", recipients=[patient_user.email])
+        msg.body = f"Hi {report.booking.patient.full_name}, your lab report is ready. Login to MedLab to view it."
+        mail.send(msg)
     db.session.add(AuditLog(
         user_id=current_user.id,
         action="Verified Report",

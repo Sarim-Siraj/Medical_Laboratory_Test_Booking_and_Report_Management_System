@@ -5,7 +5,8 @@ from wtforms import (
     StringField,
     SelectField,
     SelectMultipleField,
-    SubmitField
+    SubmitField,
+    DateField
 )
 from wtforms.validators import (
     DataRequired,
@@ -79,6 +80,26 @@ class WalkInPatientForm(FlaskForm):
         validators=[
             Optional(),
             Length(max=255, message="Address is too long.")
+        ]
+    )
+
+    dob = DateField(
+    "Date of Birth",
+    validators=[
+        DataRequired(message="Date of birth is required.")
+    ]
+)
+
+    gender = SelectField(
+        "Gender",
+        choices=[
+            ("", "Select Gender"),
+            ("Male", "Male"),
+            ("Female", "Female"),
+            ("Other", "Other")
+        ],
+        validators=[
+            DataRequired(message="Gender is required.")
         ]
     )
 
