@@ -35,6 +35,10 @@ from app.models.user import User
 from app.models.role import Role
 
 
+
+
+
+
 @login_manager.user_loader
 def load_user(user_id):
 
@@ -272,6 +276,7 @@ def dashboard():
         queue=queue,
         today_label=datetime.now(timezone.utc).strftime("%d %b %Y")
     )
+
 
 
 @auth.route("/profile")

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for  
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -29,5 +29,12 @@ def create_app():
     from app.medlab.routes import book_test
     from app.medlab import medlab
     app.register_blueprint(medlab)
+
+    @app.route("/")
+    def index():
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            return redirect(url_for("auth.dashboard"))
+        return redirect(url_for("auth.login"))
 
     return app
