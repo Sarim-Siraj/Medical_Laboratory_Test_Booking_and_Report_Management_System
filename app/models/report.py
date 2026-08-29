@@ -20,3 +20,4 @@ class ReportVerification(db.Model):
     comments = db.Column(db.String(255), nullable=True)
 
     report = db.relationship("Report", backref="verification", uselist=False)
+    staff = db.relationship("Staff")

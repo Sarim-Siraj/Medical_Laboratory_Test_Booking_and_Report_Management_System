@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4" style="max-width:500px;">
+        <h4 class="fw-bold">🧾 Booking Slip</h4>
+        <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+        <p><strong>Patient:</strong> {{ booking.patient.full_name }} ({{ booking.patient.patient_code }})</p>
+        <p><strong>Date:</strong> {{ booking.created_at.strftime('%d %b %Y') }}</p>
+        <hr>
+        <table class="table table-sm">
+            <thead><tr><th>Test</th><th>Price</th></tr></thead>
+            <tbody>
+                {% for item in booking.items %}
+                <tr><td>{{ item.test.name }}</td><td>Rs. {{ item.price }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><strong>Total:</strong> Rs. {{ booking.items | sum(attribute="price") }}</p>
+        <p><strong>Payment:</strong> {{ booking.payment.method }} — {{ booking.payment.status }}</p>
+    </div>
+    <button onclick="window.print()" class="btn btn-primary mt-3">🖨️ Print Slip</button>
+</div>
+{% endblock %}

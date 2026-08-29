@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime, timezone
 
 from flask import request
+from flask import request
 
 from app import db
 from app.medlab import medlab
@@ -117,8 +118,9 @@ def book_test():
 
         db.session.commit()
 
+        
         flash("Booking created successfully!", "success")
-        return redirect(url_for("medlab.book_test"))
+        return redirect(url_for("medlab.booking_slip", booking_id=new_booking.id))
 
     return render_template(
         "medlab/book_test.html",
@@ -130,8 +132,6 @@ def book_test():
 
 
 
-
-from flask import request
 
 
 @medlab.route("/samples/pending")
@@ -444,13 +444,22 @@ def view_report(report_id):
 
 
 
+def _calc_age(dob):
+    if not dob:
+        return None
+
+    today = date.today()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
 @medlab.route("/reports/<int:report_id>/download")
 @login_required
 def download_report(report_id):
     report = Report.query.get_or_404(report_id)
     booking = report.booking
+    age = _calc_age(booking.patient.dob)
 
-    html = render_template("medlab/report_pdf.html", report=report, booking=booking)
+    html = render_template("medlab/report_pdf.html", report=report, booking=booking, age=age)
 
     pdf_buffer = BytesIO()
     pisa.CreatePDF(html, dest=pdf_buffer)
@@ -460,3 +469,9 @@ def download_report(report_id):
     response.headers["Content-Type"] = "application/pdf"
     response.headers["Content-Disposition"] = f"attachment; filename=report_{report.id}.pdf"
     return response
+
+@medlab.route("/booking/<int:booking_id>/slip")
+@login_required
+def booking_slip(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+    return render_template("medlab/booking_slip.html", booking=booking)

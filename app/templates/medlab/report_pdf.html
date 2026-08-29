@@ -1,39 +1,149 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
 <style>
-    body { font-family: Arial, sans-serif; padding: 30px; }
-    h2 { color: #0f766e; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #f0f0f0; }
+    @page { size: A4; margin: 25px 30px; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #222; margin: 0; }
+
+    .header-table { width: 100%; border-bottom: 2px solid #0f4c81; padding-bottom: 10px; margin-bottom: 10px; }
+    .header-table td { vertical-align: top; }
+    .lab-name { font-size: 16px; font-weight: bold; color: #0f4c81; margin: 0 0 4px 0; }
+    .patient-info p { margin: 2px 0; }
+    .meta-box { border: 1px solid #999; padding: 6px 10px; font-size: 11px; }
+    .meta-box p { margin: 2px 0; }
+
+    .section-title {
+        text-align: center;
+        background: #0f4c81;
+        color: #fff;
+        font-weight: bold;
+        padding: 4px 0;
+        margin-top: 14px;
+        margin-bottom: 0;
+        letter-spacing: 1px;
+    }
+
+    table.results { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    table.results th, table.results td {
+        border-bottom: 1px solid #ccc;
+        padding: 6px 8px;
+        text-align: left;
+        font-size: 12px;
+    }
+    table.results th {
+        background: #eef3f8;
+        border-bottom: 2px solid #0f4c81;
+        font-weight: bold;
+    }
+    .value-abnormal { color: #c0392b; font-weight: bold; }
+
+    .footer-note {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 10px;
+        color: #555;
+        border-top: 1px solid #ccc;
+        padding-top: 8px;
+    }
+
+    .sign-table { width: 100%; margin-top: 60px; }
+    .sign-table td { width: 50%; text-align: center; font-size: 11px; padding-top: 20px; border-top: 1px solid #444; }
+    .sign-name { font-weight: bold; }
+
+    .end-note { text-align: center; margin: 20px 0; color: #666; }
 </style>
 </head>
 <body>
 
-    <h2>MedLab — Laboratory Report</h2>
-    <p><strong>Report ID:</strong> #{{ report.id }}</p>
-    <p><strong>Patient:</strong> {{ booking.patient.full_name }} ({{ booking.patient.patient_code }})</p>
-    <p><strong>Date:</strong> {{ report.generated_at.strftime('%d %b %Y') }}</p>
-    <p><strong>Status:</strong> {{ report.status }}</p>
-
-    <hr>
+    <table class="header-table">
+        <tr>
+            <td style="width:60%;">
+                <p class="lab-name">MedLab Diagnostics</p>
+                <div class="patient-info">
+                    <p><strong>{{ booking.patient.full_name }}</strong></p>
+                    <p>
+                        Age / Sex :
+                        {% if age %}{{ age }} YRS{% else %}--{% endif %}
+                        /
+                        {% if booking.patient.gender %}{{ booking.patient.gender[0] }}{% else %}--{% endif %}
+                    </p>
+                    <p>Patient ID : {{ booking.patient.patient_code }}</p>
+                    {% if booking.patient.phone %}<p>Contact : {{ booking.patient.phone }}</p>{% endif %}
+                </div>
+            </td>
+            <td style="width:40%;">
+                <div class="meta-box">
+                    <p><strong>Reg. no:</strong> {{ booking.id }}</p>
+                    <p><strong>Registered on:</strong> {{ booking.created_at.strftime('%d/%m/%Y %I:%M %p') }}</p>
+                    {% set sample = booking.items[0].sample if booking.items and booking.items[0].sample else None %}
+                    <p><strong>Collected on:</strong>
+                        {% if sample and sample.collected_at %}{{ sample.collected_at.strftime('%d/%m/%Y') }}{% else %}--{% endif %}
+                    </p>
+                    <p><strong>Reported on:</strong> {{ report.generated_at.strftime('%d/%m/%Y %I:%M %p') }}</p>
+                    <p><strong>Status:</strong> {{ report.status }}</p>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     {% for item in booking.items %}
-    <h4>{{ item.test.name }}</h4>
-    <table>
-        <thead><tr><th>Parameter</th><th>Value</th><th>Unit</th></tr></thead>
+    <p class="section-title">{{ item.test.category.name.upper() }}</p>
+
+    <table class="results">
+        <thead>
+            <tr>
+                <th style="width:40%;">TEST</th>
+                <th style="width:20%;">VALUE</th>
+                <th style="width:20%;">UNIT</th>
+                <th style="width:20%;">REFERENCE</th>
+            </tr>
+        </thead>
         <tbody>
+            <tr>
+                <td colspan="4" style="background:#f7f7f7; font-weight:bold; border-bottom:1px solid #ccc;">
+                    {{ item.test.name }}
+                </td>
+            </tr>
             {% if item.sample and item.sample.results %}
                 {% for r in item.sample.results %}
-                <tr><td>{{ r.parameter }}</td><td>{{ r.value }}</td><td>{{ r.unit }}</td></tr>
+                <tr>
+                    <td>{{ r.parameter }}</td>
+                    <td>{{ r.value }}</td>
+                    <td>{{ r.unit or '-' }}</td>
+                    <td>--</td>
+                </tr>
                 {% endfor %}
             {% else %}
-                <tr><td colspan="3">No results</td></tr>
+                <tr><td colspan="4">No results entered yet</td></tr>
             {% endif %}
         </tbody>
     </table>
     {% endfor %}
+
+    <p class="end-note">~~~ End of report ~~~</p>
+
+    <table class="sign-table">
+        <tr>
+            <td>
+                <div class="sign-name">Lab Incharge</div>
+                <div>MedLab Diagnostics</div>
+            </td>
+            <td>
+                {% if report.verification and report.verification.staff %}
+                <div class="sign-name">{{ report.verification.staff.user.name }}</div>
+                <div>{{ report.verification.staff.department or 'Pathologist' }}</div>
+                {% else %}
+                <div class="sign-name">Pending Verification</div>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer-note">
+        <p>NOT VALID FOR MEDICO LEGAL PURPOSE</p>
+        <p>Please correlate clinically. In case of any unexpected results, please contact the lab for re-evaluation.</p>
+    </div>
 
 </body>
 </html>
