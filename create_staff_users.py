@@ -9,10 +9,10 @@ with app.app_context():
 
     # Har role ke liye ek test account
     accounts = [
-        {"name": "Reception Desk", "email": "reception@medlab.com", "password": "pass123", "role_name": "Receptionist"},
-        {"name": "Lab Tech Ali", "email": "labtech@medlab.com", "password": "pass123", "role_name": "Lab Technician"},
-        {"name": "Dr. Pathologist", "email": "pathologist@medlab.com", "password": "pass123", "role_name": "Pathologist"},
-        {"name": "Admin User", "email": "admin@medlab.com", "password": "pass123", "role_name": "Administrator"},
+        {"name": "Qasim", "email": "reception@medlab.com", "password": "pass123", "role_name": "Receptionist"},
+        {"name": "Ali", "email": "labtech@medlab.com", "password": "pass123", "role_name": "Lab Technician"},
+        {"name": "Dr. Huzaifa", "email": "pathologist@medlab.com", "password": "pass123", "role_name": "Pathologist"},
+        {"name": "Farhan Khan", "email": "admin@medlab.com", "password": "pass123", "role_name": "Administrator"},
     ]
 
     for acc in accounts:

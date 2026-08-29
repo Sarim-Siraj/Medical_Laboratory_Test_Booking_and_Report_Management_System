@@ -9,8 +9,8 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
-        "sqlite:///medlab.db"
-    )
+        "postgresql://postgres:sarim123@localhost:5432/medlab_db"
+        )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
