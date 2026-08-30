@@ -288,3 +288,9 @@ def profile():
         "auth/profile.html",
         patient_profile=patient_profile
     )
+
+@auth.route("/")
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for("auth.dashboard"))
+    return render_template("landing.html")

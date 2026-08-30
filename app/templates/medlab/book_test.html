@@ -335,12 +335,19 @@
         <div class="filter-row">
 
             <div class="field-box">
-                <label>Patient</label>
                 {% if is_patient %}
-                <input type="text" value="{{ form.patient_id.choices[0][1] }}" disabled>
+                <input type="text" class="form-control" value="{{ form.patient_id.choices[0][1] }}" disabled>
                 {{ form.patient_id(style="display:none;") }}
                 {% else %}
-                {{ form.patient_id(class="form-select") }}
+                <input type="text" list="patient-list" class="form-control" id="patient-search"
+                    placeholder="Type patient name or ID to search..." autocomplete="off">
+                <datalist id="patient-list">
+                    {% for pid, label in form.patient_id.choices %}
+                    <option value="{{ label }}" data-id="{{ pid }}">
+                        {% endfor %}
+                </datalist>
+                {{ form.patient_id(style="display:none;", id="patient-hidden-select") }}
+                <small id="patient-error" class="text-danger d-block mt-1"></small>
                 {% endif %}
             </div>
 
@@ -407,10 +414,7 @@
                 <span id="countTxt">0 tests selected</span>
                 &nbsp;&middot;&nbsp; Total: <span class="amount" id="totalTxt">Rs. 0</span>
             </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold">Payment Method</label>
-                {{ form.payment_method(class="form-select") }}
-            </div>
+
             <button type="submit" class="btn-book" id="bookBtn" disabled>Book Tests</button>
         </div>
 
@@ -500,5 +504,54 @@
         applyFilter();
         refreshSummary();
     });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("patient-search");
+    const hiddenSelect = document.getElementById("patient-hidden-select");
+    const dataList = document.getElementById("patient-list");
+    const errorBox = document.getElementById("patient-error");
+
+    if (searchInput && hiddenSelect) {
+        const form = searchInput.closest("form");
+
+        searchInput.addEventListener("input", function () {
+            const options = dataList.querySelectorAll("option");
+            let matched = false;
+            const typed = searchInput.value.trim().toLowerCase();
+
+            options.forEach(function (opt) {
+                const fullLabel = opt.value.toLowerCase();
+                const patientCode = fullLabel.split(" - ")[0];
+
+                if (fullLabel === typed || patientCode === typed) {
+                    hiddenSelect.value = opt.getAttribute("data-id");
+                    searchInput.value = opt.value;
+                    matched = true;
+                }
+            });
+
+            if (!matched) {
+                hiddenSelect.value = "";
+                if (typed.length > 0) {
+                    errorBox.textContent = "No patient found with this ID or name.";
+                } else {
+                    errorBox.textContent = "";
+                }
+            } else {
+                errorBox.textContent = "";
+            }
+        });
+
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                if (!hiddenSelect.value) {
+                    e.preventDefault();
+                    errorBox.textContent = "Please select a valid patient (search by Patient ID or Name).";
+                }
+            });
+        }
+    }
+});
 </script>
 {% endblock %}

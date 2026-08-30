@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">🔄 Reports Sent Back for Review</h4>
+    <table class="table table-bordered">
+        <thead><tr><th>Sample Code</th><th>Test</th><th>Patient</th><th>Action</th></tr></thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.sample.sample_code if item.sample else "N/A" }}</td>
+                <td>{{ item.test.name }}</td>
+                <td>{{ item.booking.patient.full_name }}</td>
+                <td>
+                    <a href="{{ url_for('medlab.enter_result', sample_id=item.sample.id) }}" class="btn btn-sm btn-warning">Re-enter Result</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted">Nothing under review.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

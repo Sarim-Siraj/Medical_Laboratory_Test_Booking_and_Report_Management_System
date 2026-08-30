@@ -403,6 +403,7 @@
                     class="nav-item {% if request.endpoint == 'medlab.my_bookings' %}active{% endif %}">
                     <i class="bi bi-clipboard2-pulse"></i> My Test Results
                 </a>
+
                 <a href="{{ url_for('medlab.my_reports') }}"
                     class="nav-item {% if request.endpoint == 'medlab.my_reports' %}active{% endif %}">
                     <i class="bi bi-file-earmark-medical"></i> My Reports
@@ -425,12 +426,18 @@
                 <a href="{{ url_for('medlab.manage_complaints') }}" class="nav-item">
                     <i class="bi bi-megaphone"></i> Manage Complaints
                 </a>
+                <a href="{{ url_for('medlab.lookup_report') }}" class="nav-item">
+                    <i class="bi bi-search"></i> Find Report
+                </a>
                 {% endif %}
 
                 {% if current_user.role.name == "Lab Technician" %}
                 <a href="{{ url_for('medlab.collected_samples') }}"
                     class="nav-item {% if request.endpoint in ['medlab.collected_samples', 'medlab.enter_result'] %}active{% endif %}">
                     <i class="bi bi-clipboard2-check"></i> Enter Results
+                </a>
+                <a href="{{ url_for('medlab.samples_under_review') }}" class="nav-item">
+                    <i class="bi bi-arrow-repeat"></i> Under Review
                 </a>
                 {% endif %}
 
@@ -444,6 +451,14 @@
                 <a href="{{ url_for('medlab.audit_logs') }}" class="nav-item">
                     <i class="bi bi-clock-history"></i> Audit Logs
                 </a>
+                <a href="{{ url_for('medlab.add_test') }}" class="nav-item">
+                    <i class="bi bi-plus-circle"></i> Add Test
+                </a>
+                <a href="{{ url_for('medlab.add_staff') }}" class="nav-item">
+                    <i class="bi bi-person-plus"></i> Add Staff
+                </a>
+
+
                 {% endif %}
 
                 <a href="{{ url_for('auth.profile') }}"

@@ -1,53 +1,72 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="container mt-4">
+
     <h4 class="fw-bold mb-3">🧍 Register Walk-in Patient</h4>
 
     <form method="POST">
+
         {{ form.hidden_tag() }}
 
+        <!-- Full Name -->
         <div class="mb-3">
             {{ form.full_name.label(class="form-label") }}
-            {{ form.full_name(class="form-control") }}
+            {{ form.full_name(class="form-control", placeholder="Enter patient full name") }}
+
             {% for error in form.full_name.errors %}
-            <small class="text-danger">{{ error }}</small>
+                <small class="text-danger">{{ error }}</small>
             {% endfor %}
         </div>
 
+        <!-- Phone -->
         <div class="mb-3">
             {{ form.phone.label(class="form-label") }}
-            {{ form.phone(class="form-control") }}
+            {{ form.phone(class="form-control", placeholder="Enter phone number") }}
+
             {% for error in form.phone.errors %}
-            <small class="text-danger">{{ error }}</small>
+                <small class="text-danger">{{ error }}</small>
             {% endfor %}
         </div>
 
+        <!-- Address -->
         <div class="mb-3">
             {{ form.address.label(class="form-label") }}
-            {{ form.address(class="form-control") }}
+            {{ form.address(class="form-control", placeholder="Enter patient address") }}
+
             {% for error in form.address.errors %}
-            <small class="text-danger">{{ error }}</small>
+                <small class="text-danger">{{ error }}</small>
             {% endfor %}
         </div>
+
+        <!-- Date of Birth -->
         <div class="mb-3">
             {{ form.dob.label(class="form-label") }}
             {{ form.dob(class="form-control", type="date") }}
+
             {% for error in form.dob.errors %}
-            <small class="text-danger">{{ error }}</small>
+                <small class="text-danger">{{ error }}</small>
             {% endfor %}
         </div>
 
+        <!-- Gender -->
         <div class="mb-3">
             {{ form.gender.label(class="form-label") }}
             {{ form.gender(class="form-select") }}
+
             {% for error in form.gender.errors %}
-            <small class="text-danger">{{ error }}</small>
+                <small class="text-danger">{{ error }}</small>
             {% endfor %}
         </div>
-        {{ form.submit(class="btn btn-primary") }}
-        {% endblock %}
 
-        
+        <!-- Submit Button -->
+        <div class="mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+
     </form>
+
 </div>
+
+{% endblock %}

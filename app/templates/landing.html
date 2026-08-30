@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}MedLab — Book Lab Tests Online{% endblock %}
+
+{% block extra_css %}
+<style>
+    .landing-nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 18px 0; border-bottom: 1px solid #e5e7eb;
+    }
+    .hero {
+        background: linear-gradient(135deg, #0f172a 0%, #0f766e 100%);
+        border-radius: 24px;
+        padding: 60px 50px;
+        color: white;
+        margin: 30px 0 50px;
+    }
+    .hero h1 { font-weight: 800; font-size: 42px; line-height: 1.15; }
+    .hero p { color: #cbd5e1; font-size: 16px; max-width: 520px; }
+    .step-pill {
+        background: rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+    }
+    .step-pill .num {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: #ccfbf1; color: #0f766e; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 10px;
+    }
+    .section-title { font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .section-sub { color: #64748b; margin-bottom: 30px; }
+
+    .test-card {
+        border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px;
+        background: white; height: 100%;
+        transition: 0.2s;
+    }
+    .test-card:hover { box-shadow: 0 10px 30px rgba(15,23,42,0.08); transform: translateY(-2px); }
+    .test-card .icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: #ccfbf1; color: #0f766e;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; margin-bottom: 14px;
+    }
+    .test-card .price { color: #0f766e; font-weight: 700; }
+
+    .role-card {
+        border-radius: 16px; padding: 22px; height: 100%;
+        color: white;
+    }
+    .cta-box {
+        background: #0f172a; border-radius: 24px; padding: 50px;
+        color: white; text-align: center; margin: 60px 0 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="landing-nav">
+    <div class="d-flex align-items-center gap-2">
+        <span class="brand-icon"><i class="bi bi-heart-pulse-fill"></i></span>
+        <span class="fw-bold" style="font-size:20px; color:#0f766e;">MedLab</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Create Account</a>
+    </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <h1>Book a lab test.<br>Track it end to end.<br>Get a verified report.</h1>
+            <p class="mt-3">
+                MedLab connects patients, reception, the lab, and the pathologist on one system —
+                so every sample is accounted for and every report is signed off before it reaches you.
+            </p>
+            <div class="mt-4 d-flex gap-2">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg fw-semibold">Get Started →</a>
+                <a href="#tests" class="btn btn-outline-light btn-lg">View Tests</a>
+            </div>
+        </div>
+        <div class="col-md-5 mt-4 mt-md-0">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="step-pill"><div class="num">1</div>Book Online</div>
+                </div>
+                <div class="col-6">
+                    <div class="step-pill"><div class="num">2</div>Sample Collected</div>
+                </div>
+                <div class="col-6">
+                    <div class="step-pill"><div class="num">3</div>Lab Processing</div>
+                </div>
+                <div class="col-6">
+                    <div class="step-pill"><div class="num">4</div>Verified Report</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tests -->
+<div id="tests" class="mb-5">
+    <h3 class="section-title">Popular Lab Tests</h3>
+    <p class="section-sub">Transparent pricing, no hidden charges — book any test in minutes.</p>
+
+    <div class="row g-4">
+        {% for t in tests %}
+        <div class="col-md-4">
+            <div class="test-card">
+                <div class="icon"><i class="bi bi-droplet-fill"></i></div>
+                <h5 class="fw-bold mb-1">{{ t.name }}</h5>
+                <p class="text-muted small mb-2">Sample: {{ t.sample_type or "N/A" }} · Report in {{ t.turnaround_hours or "—" }}h</p>
+                <div class="price">Rs. {{ t.price }}</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-muted">Test catalog coming soon.</div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Book a Test Now</a>
+    </div>
+</div>
+
+<!-- Roles -->
+<div class="mb-5">
+    <h3 class="section-title">Built for Everyone in the Lab</h3>
+    <p class="section-sub">One system, five roles — each sees exactly what their job needs.</p>
+
+    <div class="row g-3">
+        <div class="col-md-4 col-lg-2-4" style="flex:0 0 20%; max-width:20%;">
+            <div class="role-card" style="background:#0f766e;">
+                <i class="bi bi-person fs-3 mb-2 d-block"></i>
+                <h6 class="fw-bold">Patient</h6>
+                <small>Book & track tests, download reports.</small>
+            </div>
+        </div>
+        <div class="col-md-4" style="flex:0 0 20%; max-width:20%;">
+            <div class="role-card" style="background:#0f172a;">
+                <i class="bi bi-person-badge fs-3 mb-2 d-block"></i>
+                <h6 class="fw-bold">Reception</h6>
+                <small>Register walk-ins, collect samples.</small>
+            </div>
+        </div>
+        <div class="col-md-4" style="flex:0 0 20%; max-width:20%;">
+            <div class="role-card" style="background:#d97706;">
+                <i class="bi bi-eyedropper fs-3 mb-2 d-block"></i>
+                <h6 class="fw-bold">Lab Tech</h6>
+                <small>Process samples, enter results.</small>
+            </div>
+        </div>
+        <div class="col-md-4" style="flex:0 0 20%; max-width:20%;">
+            <div class="role-card" style="background:#0f766e;">
+                <i class="bi bi-clipboard2-check fs-3 mb-2 d-block"></i>
+                <h6 class="fw-bold">Pathologist</h6>
+                <small>Verify & approve every report.</small>
+            </div>
+        </div>
+        <div class="col-md-4" style="flex:0 0 20%; max-width:20%;">
+            <div class="role-card" style="background:#0f172a;">
+                <i class="bi bi-shield-lock fs-3 mb-2 d-block"></i>
+                <h6 class="fw-bold">Admin</h6>
+                <small>Revenue, complaints, audit trail.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-box">
+    <h3 class="fw-bold">Ready to book your first test?</h3>
+    <p class="text-muted" style="color:#94a3b8 !important;">Create your free account in under a minute.</p>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg fw-semibold">Create Account →</a>
+</div>
+
+{% endblock %}

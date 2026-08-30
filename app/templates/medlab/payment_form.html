@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock-fill me-2"></i>Secure Payment</h5>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <!-- Order Summary -->
+                    <div class="d-flex justify-content-between align-items-center border rounded-3 p-3 mb-4 bg-light">
+                        <div>
+                            <div class="text-muted small">Booking Reference</div>
+                            <div class="fw-bold">#{{ booking.id }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small">Amount Payable</div>
+                            <div class="fs-4 fw-bold text-success">Rs. {{ remaining }}</div>
+                        </div>
+                    </div>
+
+                    <form method="POST" id="paymentForm">
+
+                        <!-- Method Tabs -->
+                        <label class="form-label fw-bold">Choose Payment Method</label>
+                        <input type="hidden" name="method" id="methodInput" value="Cash">
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-4">
+                                <div class="method-option border rounded-3 p-3 text-center active" data-method="Cash">
+                                    <i class="bi bi-cash-stack fs-3 d-block mb-1"></i>
+                                    <small class="fw-semibold">Cash</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="method-option border rounded-3 p-3 text-center" data-method="Card">
+                                    <i class="bi bi-credit-card-fill fs-3 d-block mb-1"></i>
+                                    <small class="fw-semibold">Card</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="method-option border rounded-3 p-3 text-center" data-method="Online">
+                                    <i class="bi bi-phone-fill fs-3 d-block mb-1"></i>
+                                    <small class="fw-semibold">Online</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card fields (only shown for Card method, cosmetic) -->
+                        <div id="cardFields" class="mb-3 d-none">
+                            <div class="mb-3">
+                                <label class="form-label">Card Number</label>
+                                <input type="text" class="form-control" placeholder="4242 4242 4242 4242" maxlength="19">
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Expiry</label>
+                                    <input type="text" class="form-control" placeholder="MM/YY" maxlength="5">
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" class="form-control" placeholder="123" maxlength="3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Online fields (cosmetic) -->
+                        <div id="onlineFields" class="mb-3 d-none">
+                            <div class="alert alert-info small mb-0">
+                                <i class="bi bi-info-circle me-1"></i>
+                                You'll receive a payment request on your linked mobile wallet (EasyPaisa / JazzCash).
+                            </div>
+                        </div>
+
+                        <!-- Cash fields -->
+                        <div id="cashFields" class="mb-3">
+                            <div class="alert alert-secondary small mb-0">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Pay in cash at the reception counter. Click below once payment is handed over.
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                <i class="bi bi-lock-fill me-1"></i>Encrypted & secure
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-lg px-4">
+                                Pay Rs. {{ remaining }} <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .method-option {
+        cursor: pointer;
+        transition: 0.15s;
+        color: #64748b;
+    }
+    .method-option:hover {
+        border-color: #0f766e !important;
+    }
+    .method-option.active {
+        border-color: #0f766e !important;
+        background: #ccfbf1;
+        color: #0f766e;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const options = document.querySelectorAll(".method-option");
+    const methodInput = document.getElementById("methodInput");
+    const cardFields = document.getElementById("cardFields");
+    const onlineFields = document.getElementById("onlineFields");
+    const cashFields = document.getElementById("cashFields");
+
+    function showFields(method) {
+        cardFields.classList.add("d-none");
+        onlineFields.classList.add("d-none");
+        cashFields.classList.add("d-none");
+        if (method === "Card") cardFields.classList.remove("d-none");
+        if (method === "Online") onlineFields.classList.remove("d-none");
+        if (method === "Cash") cashFields.classList.remove("d-none");
+    }
+
+    options.forEach(function (opt) {
+        opt.addEventListener("click", function () {
+            options.forEach(o => o.classList.remove("active"));
+            opt.classList.add("active");
+            const method = opt.getAttribute("data-method");
+            methodInput.value = method;
+            showFields(method);
+        });
+    });
+});
+</script>
+{% endblock %}

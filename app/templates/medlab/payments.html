@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">Pending Payments</h4>
+
+    {% for payment in payments %}
+    <div class="card p-3 mb-3">
+        <p><strong>Booking #{{ payment.booking_id }}</strong> — Patient: {{ payment.booking.patient.full_name }}</p>
+        <p>Amount: Rs. {{ payment.amount }} | Method: {{ payment.method }}</p>
+
+        {% if payment.screenshot_path %}
+        <img src="{{ url_for('medlab.uploaded_file', filename=payment.screenshot_path) }}" style="max-width:300px;" class="mb-2">
+        {% endif %}
+
+        <div class="d-flex gap-2">
+            <form method="POST" action="{{ url_for('medlab.confirm_payment', payment_id=payment.id) }}">
+                <button class="btn btn-success btn-sm">Confirm</button>
+            </form>
+            <form method="POST" action="{{ url_for('medlab.reject_payment', payment_id=payment.id) }}">
+                <button class="btn btn-danger btn-sm">Reject</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No pending payments.</p>
+    {% endfor %}
+</div>
+{% endblock %}

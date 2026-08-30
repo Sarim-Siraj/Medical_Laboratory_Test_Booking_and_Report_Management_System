@@ -1,8 +1,6 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="container mt-4">
-
     <h4 class="fw-bold mb-3">📋 My Bookings</h4>
 
     <table class="table table-bordered align-middle">
@@ -12,11 +10,14 @@
                 <th>Booked On</th>
                 <th>Tests</th>
                 <th>Status</th>
-                <th>Total Price</th>
+                <th>Payment</th>
             </tr>
         </thead>
         <tbody>
             {% for b in bookings %}
+            {% set total = b.items | sum(attribute="price") %}
+            {% set confirmed_paid = b.payments | selectattr("status", "equalto", "Confirmed") | sum(attribute="amount")
+            %}
             <tr>
                 <td>#{{ b.id }}</td>
                 <td>{{ b.created_at.strftime('%d %b %Y') }}</td>
@@ -28,16 +29,25 @@
                     </ul>
                 </td>
                 <td>
-                    {% if b.status == "Pending" %}
-                        <span class="badge bg-warning text-dark">{{ b.status }}</span>
-                    {% elif b.status == "Completed" %}
-                        <span class="badge bg-success">{{ b.status }}</span>
+                    {% if b.status == "Completed" %}
+                    <span class="badge bg-success">Completed</span>
+                    {% elif b.status == "Cancelled" %}
+                    <span class="badge bg-secondary">Cancelled</span>
                     {% else %}
-                        <span class="badge bg-secondary">{{ b.status }}</span>
+                    <span class="badge bg-warning text-dark">Pending</span>
                     {% endif %}
                 </td>
                 <td>
-                    Rs. {{ b.items | sum(attribute="price") }}
+                    {% set pending_payment = b.payments | selectattr("status", "equalto", "Pending") | list %}
+
+                    {% if confirmed_paid >= total %}
+                    <span class="badge bg-success">Paid</span>
+                    {% elif pending_payment %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif b.status != "Cancelled" %}
+                    <a href="{{ url_for('medlab.record_payment', booking_id=b.id) }}" class="btn btn-sm btn-success">Pay
+                        Now</a>
+                    {% endif %}
                 </td>
             </tr>
             {% else %}
@@ -47,6 +57,5 @@
             {% endfor %}
         </tbody>
     </table>
-
 </div>
 {% endblock %}

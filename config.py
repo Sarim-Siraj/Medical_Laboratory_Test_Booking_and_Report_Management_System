@@ -20,3 +20,6 @@ class Config:
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_USERNAME")
+
+    LAB_PAYMENT_ACCOUNT = "EasyPaisa / JazzCash: 0300-1234567 (MedLab Diagnostics)"
+    UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), "uploads")

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="fw-bold mb-3">🔍 Find Patient Report</h4>
+
+    <form method="GET" class="mb-3">
+        <div class="input-group" style="max-width:400px;">
+            <input type="text" name="search" class="form-control" placeholder="Patient ID or Name" value="{{ search }}">
+            <button class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Report ID</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reports %}
+            <tr>
+                <td>{{ r.booking.patient.full_name }} ({{ r.booking.patient.patient_code }})</td>
+                <td>#{{ r.id }}</td>
+                <td>{{ r.generated_at.strftime('%d %b %Y') }}</td>
+                <td>
+                    <a href="{{ url_for('medlab.view_report', report_id=r.id) }}" class="btn btn-sm btn-primary">View</a>
+                    <a href="{{ url_for('medlab.download_report', report_id=r.id) }}" class="btn btn-sm btn-outline-primary">Print</a>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% if search and not reports %}
+            <tr>
+                <td colspan="4" class="text-center text-muted">No reports found.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

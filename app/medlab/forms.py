@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
 
-
 from wtforms import (
     StringField,
     SelectField,
@@ -8,6 +7,7 @@ from wtforms import (
     SubmitField,
     DateField
 )
+
 from wtforms.validators import (
     DataRequired,
     Optional,
@@ -16,17 +16,20 @@ from wtforms.validators import (
 )
 
 
-
-
-
 class BookingForm(FlaskForm):
-    patient_id = SelectField("Patient", coerce=int, validators=[DataRequired()])
-    test_ids = SelectMultipleField("Select Tests", coerce=int, validators=[DataRequired()])
-    payment_method = SelectField(
-        "Payment Method",
-        choices=[("Cash", "Cash"), ("Card", "Card"), ("Online", "Online")],
+
+    patient_id = SelectField(
+        "Patient",
+        coerce=int,
         validators=[DataRequired()]
     )
+
+    test_ids = SelectMultipleField(
+        "Select Tests",
+        coerce=int,
+        validators=[DataRequired()]
+    )
+
     submit = SubmitField("Book Tests")
 
 
@@ -44,7 +47,7 @@ class ResultEntryForm(FlaskForm):
         "Value",
         validators=[
             DataRequired(message="Result value is required."),
-            Length(min=1, max=50, message="Value is too long.")
+            Length(max=50, message="Value is too long.")
         ]
     )
 
@@ -62,8 +65,14 @@ class WalkInPatientForm(FlaskForm):
     full_name = StringField(
         "Full Name",
         validators=[
-            DataRequired(message="Patient name is required."),
-            Length(min=3, max=100, message="Name must be 3-100 characters.")
+            DataRequired(
+                message="Patient name is required."
+            ),
+            Length(
+                min=3,
+                max=100,
+                message="Name must be 3-100 characters."
+            )
         ]
     )
 
@@ -71,7 +80,10 @@ class WalkInPatientForm(FlaskForm):
         "Phone",
         validators=[
             Optional(),
-            Regexp(r'^\d{10,15}$', message="Phone must contain only digits (10-15 numbers).")
+            Regexp(
+                r'^\d{10,15}$',
+                message="Phone must contain only digits (10-15 numbers)."
+            )
         ]
     )
 
@@ -79,16 +91,20 @@ class WalkInPatientForm(FlaskForm):
         "Address",
         validators=[
             Optional(),
-            Length(max=255, message="Address is too long.")
+            Length(
+                max=255,
+                message="Address is too long."
+            )
         ]
     )
 
     dob = DateField(
-    "Date of Birth",
-    validators=[
-        DataRequired(message="Date of birth is required.")
-    ]
-)
+        "Date of Birth",
+        format="%Y-%m-%d",
+        validators=[
+            Optional()
+        ]
+    )
 
     gender = SelectField(
         "Gender",
@@ -99,7 +115,7 @@ class WalkInPatientForm(FlaskForm):
             ("Other", "Other")
         ],
         validators=[
-            DataRequired(message="Gender is required.")
+            Optional()
         ]
     )
 

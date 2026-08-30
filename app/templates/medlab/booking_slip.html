@@ -8,15 +8,25 @@
         <p><strong>Date:</strong> {{ booking.created_at.strftime('%d %b %Y') }}</p>
         <hr>
         <table class="table table-sm">
-            <thead><tr><th>Test</th><th>Price</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Test</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
             <tbody>
                 {% for item in booking.items %}
-                <tr><td>{{ item.test.name }}</td><td>Rs. {{ item.price }}</td></tr>
+                <tr>
+                    <td>{{ item.test.name }}</td>
+                    <td>Rs. {{ item.price }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
         <p><strong>Total:</strong> Rs. {{ booking.items | sum(attribute="price") }}</p>
-        <p><strong>Payment:</strong> {{ booking.payment.method }} — {{ booking.payment.status }}</p>
+        {% if booking.payments %}
+        <p><strong>Payment:</strong> {{ booking.payments[0].method }} — {{ booking.payments[0].status }}</p>
+        {% endif %}
     </div>
     <button onclick="window.print()" class="btn btn-primary mt-3">🖨️ Print Slip</button>
 </div>

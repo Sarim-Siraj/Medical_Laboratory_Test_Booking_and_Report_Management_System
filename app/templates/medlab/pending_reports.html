@@ -1,23 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <h4 class="fw-bold mb-3">📄 Reports Awaiting Verification</h4>
+    <h4 class="fw-bold mb-3">📄 Reports</h4>
     <table class="table table-bordered">
-        <thead><tr><th>Report ID</th><th>Patient</th><th>Action</th></tr></thead>
+        <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Patient</th>
+                <th>View</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
         <tbody>
             {% for r in reports %}
             <tr>
                 <td>#{{ r.id }}</td>
-                <td><a href="{{ url_for('medlab.view_report', report_id=r.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
                 <td>{{ r.booking.patient.full_name }} ({{ r.booking.patient.patient_code }})</td>
+                <td><a href="{{ url_for('medlab.view_report', report_id=r.id) }}"
+                        class="btn btn-sm btn-outline-primary">View</a></td>
                 <td>
-                    <form method="POST" action="{{ url_for('medlab.verify_report', report_id=r.id) }}">
-                        <button class="btn btn-sm btn-success">Verify</button>
-                    </form>
+                    {% if r.status == "Verified" %}
+                    <span class="badge bg-success">Verified</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <form method="POST" action="{{ url_for('medlab.verify_report', report_id=r.id) }}">
+                            <button class="btn btn-sm btn-success">Verify</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('medlab.unverify_report', report_id=r.id) }}"
+                            onsubmit="return confirm('Send this report back to Lab Technician for review?')">
+                            <button class="btn btn-sm btn-outline-danger">Unverify</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% else %}
-            <tr><td colspan="3" class="text-center text-muted">No reports pending 🎉</td></tr>
+            <tr>
+                <td colspan="5" class="text-center text-muted">No reports found.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
